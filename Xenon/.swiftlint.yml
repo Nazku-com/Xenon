@@ -1,0 +1,301 @@
+# SwiftLint Default and Optional Rules
+# https://ipf-jira.atlassian.net/l/cp/FKPVGseu
+only_rules:
+  - closure_parameter_position
+  - colon
+  - comma
+  - comment_spacing
+  - computed_accessors_order
+  - discouraged_direct_init
+  - duplicate_imports
+  - force_cast
+  - force_try
+  - generic_type_name
+  - identifier_name
+  - leading_whitespace
+  - legacy_cggeometry_functions
+  - legacy_constant
+  - legacy_constructor
+  - legacy_random
+  - mark
+  - no_space_in_method_call
+  - opening_brace
+  - protocol_property_accessors_order
+  - redundant_objc_attribute
+  - redundant_string_enum_value
+  - return_arrow_whitespace
+  - statement_position
+  - type_name
+  - vertical_parameter_alignment
+  - implicit_return
+  - custom_rules
+
+closure_parameter_position:
+  severity: error
+
+colon:
+  severity: error
+
+comma:
+  severity: error
+
+comment_spacing:
+  severity: error
+
+computed_accessors_order:
+  severity: error
+
+discouraged_direct_init:
+  severity: error
+
+duplicate_imports:
+  severity: error
+
+leading_whitespace:
+  severity: error
+
+legacy_cggeometry_functions:
+  severity: error
+
+legacy_constant:
+  severity: error
+
+legacy_constructor:
+  severity: error
+
+legacy_random:
+  severity: error
+
+mark:
+  severity: error
+
+no_space_in_method_call:
+  severity: error
+
+opening_brace:
+  severity: error
+
+protocol_property_accessors_order:
+  severity: error
+
+redundant_objc_attribute:
+  severity: error
+
+redundant_string_enum_value:
+  severity: error
+
+return_arrow_whitespace:
+  severity: error
+
+statement_position:
+  severity: error
+
+vertical_parameter_alignment:
+  severity: error
+
+implicit_return:
+  severity: error
+
+identifier_name:
+  min_length:
+    warning: 1
+    error: 1
+  max_length:
+    warning: 1000
+    error: 1000
+
+
+# Custom Rules
+# https://ipf-jira.atlassian.net/l/cp/j0MJ3E2R
+custom_rules:
+  no_print:
+    name: "No Print"
+    regex: "print\\("
+    message: "There should be no print statements left in the Swift file."
+    severity: error
+
+  no_interfaces_mark:
+    name: "No Interfaces Mark"
+    regex: "// MARK: - Interfaces"
+    message: "'// MARK: -' comments must be written in the singular."
+    severity: error
+  
+  no_uis_mark:
+    name: "No UIs Mark"
+    regex: "// MARK: - UIs"
+    message: "'// MARK: -' comments must be written in the singular."
+    severity: error
+
+  no_attributes_mark:
+    name: "No Attributes Mark"
+    regex: "// MARK: - Attributes"
+    message: "'// MARK: -' comments must be written in the singular."
+    severity: error
+  
+  no_initializations_mark:
+    name: "No Initializations Mark"
+    regex: "// MARK: - Initializations"
+    message: "'// MARK: -' comments must be written in the singular."
+    severity: error
+  
+  no_setups_mark:
+    name: "No Setups Mark"
+    regex: "// MARK: - Setups"
+    message: "'// MARK: -' comments must be written in the singular."
+    severity: error
+    
+  no_set_up_mark:
+    name: "No Set Up Mark"
+    regex: "// MARK: - Set [Uu]p"
+    message: "'// MARK: -' comments must be written in the singular."
+    severity: error
+  
+  no_view_life_cycles_mark:
+    name: "No View Life Cycles Mark"
+    regex: "// MARK: - View Life Cycles"
+    message: "'// MARK: -' comments must be written in the singular."
+    severity: error
+  
+  no_actions_mark:
+    name: "No Actions Mark"
+    regex: "// MARK: - Actions"
+    message: "'// MARK: -' comments must be written in the singular."
+    severity: error
+  
+  action_mark_position:
+    name: "Action Mark Position"
+    regex: "[^\n]// MARK: - Action"
+    message: "'// MARK: - Action' comments must be outside class."
+    severity: error
+  
+  no_constants_mark:
+    name: "No Constants Mark"
+    regex: "// MARK: - Constants"
+    message: "'// MARK: -' comments must be written in the singular."
+    severity: error
+  
+  constant_mark_position:
+    name: "Constant Mark Position"
+    regex: "[^\n]// MARK: - Constant"
+    message: "'// MARK: - Constant' comments must be outside class."
+    severity: error
+  
+  no_properties_mark:
+    name: "No Properties Mark"
+    regex: "// MARK: - Properties"
+    message: "'// MARK: -' comments must be written in the singular."
+    severity: error
+  
+  no_blank_lines_under_the_opening_brace:
+    name: "No blank lines under the opening brace"
+    regex: '(?-s)^\s{4,}.*(func|var|let|\))\s.*\{\n\s*\n'
+    message: "There must be no blank lines under the opening brace."
+    severity: error
+  
+  no_blank_lines_above_the_closing_brace:
+    name: "No blank lines above the closing brace"
+    regex: '\n\s*\n\s*\}'
+    message: "There must be no blank lines above the closing brace."
+    severity: error
+  
+  no_too_many_blank_lines:
+    name: "No too many blank lines"
+    regex: '(?-s)^.+\n(?:\s*\n){2,}\s*[\w@]+(?!// MARK: -)'
+    message: "There are too many blank lines"
+    severity: error
+    
+  only_one_blank_line_above_first_mark_comment:
+    name: "Only one blank line above first mark comment"
+    regex: '(?-s)(import.+|\{)(\n *){3,}(// MARK: -)'
+    message: "There must be one blank line above first mark comment."
+    severity: error
+    
+  only_two_blank_lines_above_mark_comment:
+    name: "Only two blank lines above mark comment"
+    regex: '(?-s)\}(\n *){1,2}(// MARK: -)|\n(?:\s*\n){3,}\s*(// MARK: -)'
+    message: "There must be two blank lines above mark comment."
+    severity: error
+  
+  ui_mark_comment_order:
+    name: "UI mark comment order"
+    regex: '(?-s)(// MARK: - UI)(\n.*)*(// MARK: - Interface\n)'
+    message: "The order of UI mark comment is incorrect."
+    severity: error
+    
+  attribute_mark_comment_order:
+    name: "Attribute mark comment order"
+    regex: '(?-s)(// MARK: - Attribute)(\n.*)*((// MARK: - Interface\n)|(// MARK: - UI\n)){1}'
+    message: "The order of attribute mark comment is incorrect."
+    severity: error
+    
+  initialization_mark_comment_order:
+    name: "Initialization mark comment order"
+    regex: '(?-s)(// MARK: - Initialization)(\n.*)*((// MARK: - Interface\n)|(// MARK: - UI\n)|(// MARK: - Attribute\n)){1}'
+    message: "The order of initialization mark comment is incorrect."
+    severity: error
+    
+  view_life_cycle_mark_comment_order:
+    name: "View life cycle mark comment order"
+    regex: '(?-s)(// MARK: - View Life Cycle)(\n.*)*((// MARK: - Interface\n)|(// MARK: - UI\n)|(// MARK: - Attribute\n)|(// MARK: - Initialization\n)){1}'
+    message: "The order of view life cycle mark comment is incorrect."
+    severity: error
+    
+  setup_mark_comment_order:
+    name: "Setup mark comment order"
+    regex: '(?-s)(// MARK: - Setup)(\n.*)*((// MARK: - Interface\n)|(// MARK: - UI\n)|(// MARK: - Attribute\n)|(// MARK: - Initialization\n)|(// MARK: - View Life Cycle\n)){1}'
+    message: "The order of setup mark comment is incorrect."
+    severity: error
+  
+  call_super_method_inside_override_method:
+    name: "Call super method inside override method"
+    regex: '(?-s)override func (?!setUp)(?!tearDown).*(?:\(.*\)|\((?:[\s\S](?!func))+?\s{4}\))\s\{(?:[\s\S](?!super))+?\n\s{4}\}'
+    message: "Inside the override method, must call the super method."
+    severity: error
+  
+  no_get_property:
+    name: "No Get Property"
+    regex: '(let|var)\s+get.*'
+    message: "Property name must not start with 'get'."
+    severity: error
+  
+  no_get_method:
+    name: "No Get Method"
+    regex: 'func\s+get.*'
+    message: "Method name must not start with 'get'."
+    severity: error
+  
+  input_line_break_under_extension:
+    name: "Input line break under extension"
+    regex: '(?-s)extension\s.*\{\n.*[^\s]+'
+    message: "Extension must be followed by a single line."
+    severity: error
+  
+  input_line_break_under_class_struct_enum_protocol:
+    name: "Input line break under class, struct, enum, protocol"
+    regex: '(?-s)(class|struct|enum|protocol)\s(?!func|var).*\{\n.*[^\s]+'
+    message: "Class, Struct, Enum, Protocol must be followed by a single line."
+    severity: error
+    
+  only_one_blank_line_above_and_below_imports:
+    name: "Only one blank line above and below imports"
+    regex: '(?-s)//\n.*import|import.+\n{2,}.*import|import.+\n(?!.*import).+'
+    message: "There must be one blank line above and below imports."
+    severity: error
+    
+  no_character_following_the_opening_brace:
+    name: "No character following the opening brace"
+    regex: '(?-s) \{[^\s\}]'
+    message: "There must not be character following the opening brace."
+    severity: error
+    
+  no_character_following_the_closing_brace:
+    name: "No character following the closing brace"
+    regex: '(?-s)[^\s\{]\}(\n|\))'
+    message: "There must not be character following the closing brace."
+    severity: error
+  
+  
+# Settings
+excluded:
+  - ${PODS_ROOT}
+
