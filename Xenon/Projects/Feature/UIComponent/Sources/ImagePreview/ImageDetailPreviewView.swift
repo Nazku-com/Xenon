@@ -12,56 +12,38 @@ import Kingfisher
 
 public struct ImageDetailPreviewView: View {
     
-    public init(_ url: URL?, blurHash: String? = nil, height: CGFloat, aspect: Double?) {
+    public init(_ url: URL?, previewURL: URL? = nil, blurHash: String? = nil, height: CGFloat, aspect: Double?) {
         self.url = url
+        self.previewURL = previewURL
         self.blurHash = blurHash
         self.height = height
         self.aspect = aspect
     }
     
     private let url: URL?
+    private let previewURL: URL?
     private let blurHash: String?
     private let height: CGFloat
     private let aspect: Double?
-    @State private var image: UIImage?
     public var body: some View {
-        if let image {
-            Button {
-                ImagePreviewManager().showPreview(image: image)
-            } label: {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFit()
+        Button {
+            if let url {
+                ImagePreviewManager().showPreview(url: url, previewURL: previewURL)
             }
-            .buttonStyle(.plain)
-        } else {
-            let aspectWidth = height * max((aspect ?? 1), 1)
-            if url != nil {
-                if let blurHash {
-                    BlurHashView(blurHash: blurHash, size: .init(width: aspectWidth, height: height))
-                        .frame(width: aspectWidth, height: height)
-                        .onAppear {
-                            loadImage()
-                        }
-                } else {
-                    ProgressView()
-                        .onAppear {
-                            loadImage()
-                        }
-                }
-            }
+        } label: {
+            KFImage(previewURL ?? url)
+                .placeholder({ _ in
+                    if let blurHash {
+                        let aspectWidth = height * max((aspect ?? 1), 1)
+                        BlurHashView(blurHash: blurHash, size: .init(width: aspectWidth, height: height))
+                            .frame(width: aspectWidth, height: height)
+                    } else {
+                        ProgressView()
+                    }
+                })
+                .resizable()
+                .scaledToFit()
         }
-    }
-    
-    private func loadImage() {
-        guard let url else { return } // TODO: - Show error
-        KingfisherManager.shared.retrieveImage(with: url) { result in
-            switch result {
-            case .success(let imageResult):
-                image = imageResult.image
-            case .failure(let error):
-                print("Failed to load image: \(error)")
-            }
-        }
+        .buttonStyle(.plain)
     }
 }

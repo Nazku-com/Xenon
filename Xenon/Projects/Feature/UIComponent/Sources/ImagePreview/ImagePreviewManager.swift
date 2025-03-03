@@ -10,11 +10,8 @@ import SDWebImage
 
 final class ImagePreviewManager {
     
-    func showPreview(image: UIImage) {
-        let imageData: Data? = image.sd_imageData() ?? image.pngData()
-        guard let data = imageData else { return }
-        let preview = ImagePreviewController()
-        preview.imageData = data
+    func showPreview(url: URL, previewURL: URL?) {
+        let preview = ImagePreviewController(url: url, previewURL: previewURL)
         guard let window = UIApplication.shared.firstKeyWindow else {
             return
         }

@@ -142,7 +142,8 @@ public struct ContentCellView<Buttons: View, Content: ContentType>: View {
                     switch mediaAttachment.contentType {
                     case .image:
                         ImageDetailPreviewView(
-                            mediaAttachment.previewURL,
+                            mediaAttachment.url,
+                            previewURL: mediaAttachment.previewURL,
                             blurHash: mediaAttachment.blurhash,
                             height: 150,
                             aspect: mediaAttachment.aspect

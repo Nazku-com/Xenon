@@ -8,12 +8,14 @@
 import QuickLook
 import SDWebImage
 import UIKit
+import Kingfisher
 
 private let previewContentDirectory = URL(fileURLWithPath: NSTemporaryDirectory())
     .appendingPathComponent(Bundle.main.bundleIdentifier!)
     .appendingPathComponent("Preview")
 
 class ImagePreviewController: QLPreviewController, QLPreviewControllerDataSource, QLPreviewControllerDelegate {
+    
     var imageData: Data? {
         didSet { prepareFile() }
     }
@@ -28,10 +30,49 @@ class ImagePreviewController: QLPreviewController, QLPreviewControllerDataSource
         dataSource = self
     }
     
+    init(url: URL, previewURL: URL?) {
+        super.init(nibName: nil, bundle: nil)
+        Task {
+            if let previewURL {
+                await loadImageDataFromURL(previewURL)
+            }
+            await loadImageDataFromURL(url)
+        }
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     deinit {
         debugPrint("\(#file) \(#function)")
         if let location = targetLocation {
             try? FileManager.default.removeItem(at: location)
+        }
+    }
+    
+    private func loadImageDataFromURL(_ url: URL) async {
+        await withCheckedContinuation { continuation in
+            KingfisherManager.shared.retrieveImage(with: url) { [weak self] result in
+                guard let self else {
+                    continuation.resume()
+                    return
+                }
+                switch result {
+                case .success(let image):
+                    guard let data = image.data() else {
+                        continuation.resume()
+                        return
+                    }
+                    Task { @MainActor in
+                        self.imageData = data
+                        continuation.resume()
+                    }
+                case .failure:
+                    continuation.resume()
+                    return
+                }
+            }
         }
     }
     
