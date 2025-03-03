@@ -38,6 +38,7 @@ public struct ContentCellView<Buttons: View, Content: ContentType>: View {
             }
             
             mediaAttatchmentView(mediaAttachments: content.mediaAttachments)
+                .padding(.bottom, 6)
             HStack {
                 Button {
                     onAvatarTapped(content.account)
@@ -63,7 +64,7 @@ public struct ContentCellView<Buttons: View, Content: ContentType>: View {
                     .frame(height: 40)
             }
             .buttonStyle(.plain)
-            DateTimeVIew(date: content.createdAt)
+            DateTimeView(date: content.createdAt)
         }
         .padding(8)
         .background {
@@ -130,7 +131,7 @@ public struct ContentCellView<Buttons: View, Content: ContentType>: View {
                     .lineLimit(2)
             }
             .buttonStyle(.plain)
-            DateTimeVIew(date: content.createdAt)
+            DateTimeView(date: content.createdAt)
         }
     }
     
@@ -142,7 +143,8 @@ public struct ContentCellView<Buttons: View, Content: ContentType>: View {
                     switch mediaAttachment.contentType {
                     case .image:
                         ImageDetailPreviewView(
-                            mediaAttachment.previewURL,
+                            mediaAttachment.url,
+                            previewURL: mediaAttachment.previewURL,
                             blurHash: mediaAttachment.blurhash,
                             height: 150,
                             aspect: mediaAttachment.aspect
@@ -169,6 +171,7 @@ public struct ContentCellView<Buttons: View, Content: ContentType>: View {
     public init(
         content: Content,
         contentLineLimit: Int? = 5,
+        hideContents: Bool,
         buttons: @escaping () -> Buttons,
         onAvatarTapped: @escaping ((Content.Account) -> Void)
     ) {
@@ -176,7 +179,7 @@ public struct ContentCellView<Buttons: View, Content: ContentType>: View {
         self.contentLineLimit = contentLineLimit
         self.buttons = buttons()
         self.onAvatarTapped = onAvatarTapped
-        hideContents = content.sensitive
+        self.hideContents = hideContents
         
         let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
         let matches = detector?.matches(in: content.content, options: [], range: NSRange(location: 0, length: content.content.utf16.count))

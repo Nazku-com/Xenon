@@ -22,17 +22,20 @@ public struct ContentView: View {
                 }
                 .onReceive(navigationBarModel.buttonTapPublisher) { buttonType in
                     switch buttonType {
-                    case .home:
-                        selectedTab = MainTab.home.rawValue
-                    case .search:
-                        selectedTab = MainTab.search.rawValue
-                    case .message:
-                        selectedTab = MainTab.message.rawValue
+                    case .home, .search, .message:
+                        if let tabName = MainTab(rawValue: buttonType.rawValue) {
+                            if selectedTab == tabName.rawValue {
+                                PathManager.shared.updateTab(tabName, path: .init())
+                            } else {
+                                selectedTab = tabName.rawValue
+                                PathManager.shared.updateTab(tabName, path: path)
+                            }
+                        }
+                        path = PathManager.shared.path
                     case .plus:
                         NavigationBarViewModel.shared.isAddNoteBarViewShown = true
                         return
                     }
-                    path = .init()
                 }
                 .onReceive(NotificationCenter.default.publisher(for: .NeedNavigationNotification)) { notification in
                     path.append(notification)
@@ -60,8 +63,7 @@ public struct ContentView: View {
             TabView(selection: $selectedTab) {
                 ForEach(MainTab.allCases, id: \.self) { content in
                     content.view(
-                        oAuthData: oAuthData,
-                        path: $path
+                        oAuthData: oAuthData
                     )
                     .toolbar(.hidden, for: .tabBar)
                     .tag(content.rawValue)
@@ -92,7 +94,8 @@ public struct ContentView: View {
             FediverseContentDetailView(model: .init(oAuthData: oAuthData, navigatedContent: content))
         } else if let fediverseAccountEntity = notification.object as? FediverseAccountEntity {
             FediverseProfileView(model: .init(oAuthData: oAuthData, fediverseAccountData: fediverseAccountEntity))
-        } else {
+        }
+        else {
             Text("Unknown")
         }
     }

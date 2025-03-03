@@ -36,7 +36,11 @@ final class FediverseStaggeredGridViewModel: StaggeredGridViewModelType {
         let result = await oAuthData?.timeline(type: timeline)
         switch result {
         case .success(let success):
-            timelineData = success
+            if SensitiveContentManager.shared.hideAllSensitiveContent {
+                timelineData = success.filter({ $0.sensitive == false })
+            } else {
+                timelineData = success
+            }
         case .failure, .none:
             return
         }
@@ -47,10 +51,14 @@ final class FediverseStaggeredGridViewModel: StaggeredGridViewModelType {
         let result = await oAuthData?.timeline(type: timeline, minID: minID, maxID: maxID)
         switch result {
         case .success(let success):
+            var content = success
+            if SensitiveContentManager.shared.hideAllSensitiveContent {
+                content = success.filter({ $0.sensitive == false })
+            }
             if minID != nil {
-                timelineData.insert(contentsOf: success, at: 0)
+                timelineData.insert(contentsOf: content, at: 0)
             } else {
-                timelineData.append(contentsOf: success)
+                timelineData.append(contentsOf: content)
             }
         case .failure, .none:
             return

@@ -24,7 +24,7 @@ final class SegmentedControlTabManager {
         return data
     }
     
-    private func save(userID: String, tabs: [SegmentedControlTab]) {
+    func save(userID: String, tabs: [SegmentedControlTab]) {
         guard
             let fileURL = Path.tabListURL(userID: userID),
             let data = try? JSONEncoder().encode(tabs)

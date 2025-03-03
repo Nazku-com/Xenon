@@ -10,7 +10,7 @@ import SwiftUI
 import Combine
 import Neumorphic
 
-public enum BottomNavigationBarButtonType {
+public enum BottomNavigationBarButtonType: String {
     
     case home
     case plus

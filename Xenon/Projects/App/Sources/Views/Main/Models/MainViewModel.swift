@@ -19,5 +19,17 @@ final class MainViewModel: ObservableObject {
         let tabs = SegmentedControlTabManager.shared.tabs(for: oAuthData.user?.id)
         self.tabs = tabs
         self.selectedTab = tabs.first?.title ?? ""
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(didRecieveNeedRefreshSegmentControl),
+            name: .NeedRefreshSegmentControl,
+            object: nil
+        )
+    }
+    
+    @objc
+    private func didRecieveNeedRefreshSegmentControl() {
+        let tabs = SegmentedControlTabManager.shared.tabs(for: oAuthData.user?.id)
+        self.tabs = tabs
     }
 }

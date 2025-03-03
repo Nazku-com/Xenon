@@ -30,6 +30,7 @@ public protocol MediaAttachmentType {
     
     var id: String { get }
     var contentType: MediaContentType { get }
+    var url: URL? { get }
     var previewURL: URL? { get }
     var blurhash: String? { get }
     var aspect: Double? { get }
