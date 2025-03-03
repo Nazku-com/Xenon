@@ -5,9 +5,9 @@ public struct ProjectInfo {
     
     public static let name = "xenon"
     
-    public static let bundleIdPrefix = "com.Nazku."
+    public static let bundleIdPrefix = "social.xenon."
 
-    public static let organizationName = "com.Nazku."
+    public static let organizationName = "social.xenon."
     
     public static let settings: Settings = .settings(
         base: [:],
