@@ -16,8 +16,7 @@ enum MainTab: String, CaseIterable {
     
     @ViewBuilder
     func view(
-        oAuthData: OauthData,
-        path: Binding<NavigationPath>
+        oAuthData: OauthData
     ) -> some View {
         switch self {
         case .home:
@@ -25,7 +24,7 @@ enum MainTab: String, CaseIterable {
         case .search:
             Text("search")
         case .message:
-            NotificationView(oAuthData: oAuthData, path: path)
+            NotificationListView()
         }
     }
 }

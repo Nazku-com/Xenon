@@ -18,7 +18,11 @@ public struct FediverseContentDetailView: View {
     public var body: some View {
         ScrollView {
             ForEach(model.contents, id: \.id) { content in
-                ContentCellView(content: content, contentLineLimit: nil) {
+                ContentCellView(
+                    content: content,
+                    contentLineLimit: nil,
+                    hideContents: !SensitiveContentManager.shared.hideWarning && content.sensitive
+                ) {
                     buttonView(content: content)
                 } onAvatarTapped: { account in
                     NotificationCenter.default.post(name: .NeedNavigationNotification, object: account)
