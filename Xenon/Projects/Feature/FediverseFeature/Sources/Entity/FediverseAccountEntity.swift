@@ -10,7 +10,7 @@ import Foundation
 import Alamofire
 import NetworkingFeature
 
-public struct FediverseAccountEntity: NetworkingEntityType, Equatable, Hashable {
+public struct FediverseAccountEntity: NetworkingEntityType, Equatable, Hashable, Identifiable {
     
     public static func == (lhs: FediverseAccountEntity, rhs: FediverseAccountEntity) -> Bool {
         lhs.id == rhs.id

@@ -94,6 +94,8 @@ public struct ContentView: View {
             FediverseContentDetailView(model: .init(oAuthData: oAuthData, navigatedContent: content))
         } else if let fediverseAccountEntity = notification.object as? FediverseAccountEntity {
             FediverseProfileView(model: .init(oAuthData: oAuthData, fediverseAccountData: fediverseAccountEntity))
+        } else if let initializer = notification.object as? FollowingListView.Initializer {
+            FollowingListView(selectedContent: initializer.contentType, manager: .init(userID: initializer.id))
         }
         else {
             Text("Unknown")

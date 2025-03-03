@@ -35,6 +35,7 @@ public enum MastodonAPI {
     case relationships(from: URL, token: OauthTokenEntity, id: String)
     case follow(from: URL, token: OauthTokenEntity, id: String)
     case unfollow(from: URL, token: OauthTokenEntity, id: String)
+    case followers(from: URL, token: OauthTokenEntity, id: String)
     case boost(from: URL, token: OauthTokenEntity, id: String)
     case unboost(from: URL, token: OauthTokenEntity, id: String)
     case post(from: URL, token: OauthTokenEntity, content: String, visibility: FediverseResponseEntity.Visibility)
@@ -50,7 +51,7 @@ extension MastodonAPI: NetworkingAPIType {
                 .unFavorite(let url, _, _), .lookup(let url, _, _), .context(let url, _, _),
                 .notifications(let url, _, _, _), .conversations(let url, _),
                 .relationships(let url, _, _), .follow(let url, _, _), .unfollow(let url, _, _),
-                .boost(let url, _, _), .unboost(let url, _, _), .post(let url, _, _, _):
+                .followers(let url, _, _), .boost(let url, _, _), .unboost(let url, _, _), .post(let url, _, _, _):
             return url
         }
     }
@@ -85,6 +86,8 @@ extension MastodonAPI: NetworkingAPIType {
             return "/api/v1/accounts/\(id)/follow"
         case .unfollow(_, _, let id):
             return "/api/v1/accounts/\(id)/unfollow"
+        case .followers(_, _, let id):
+            return "/api/v1/accounts/\(id)/followers"
         case .boost(_, _, let id):
             return "/api/v1/statuses/\(id)/reblog"
         case .unboost(_, _, let id):
@@ -97,7 +100,7 @@ extension MastodonAPI: NetworkingAPIType {
     public var method: Alamofire.HTTPMethod {
         switch self {
         case .checkUserInfo, .timeline, .accountStatus, .lookup, .context,
-                .notifications, .conversations, .relationships:
+                .notifications, .conversations, .relationships, .followers:
             return .get
         case .registerApp, .createToken, .setFavorite, .unFavorite, .follow, .unfollow,
                 .boost, .unboost, .post:
@@ -116,7 +119,7 @@ extension MastodonAPI: NetworkingAPIType {
                 .unFavorite(_, let token, _), .lookup(_, let token, _),
                 .context(_, let token, _), .notifications(_, let token, _, _),
                 .conversations(_, let token), .relationships(_, let token, _),
-                .follow(_, let token, _), .unfollow(_, let token, _),
+                .follow(_, let token, _), .unfollow(_, let token, _),.followers(_, let token, _),
                 .boost(_, let token, _), .unboost(_, let token, _), .post(_, let token, _, _):
             return HTTPHeaders([
                 "Content-Type": "application/json",

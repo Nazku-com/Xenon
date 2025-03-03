@@ -104,17 +104,26 @@ public struct FediverseProfileView: View {
                     .padding(.bottom, 8)
                 
                 HStack(alignment: .bottom, spacing: 4) {
-                    Text(SuffixNumber.format(account.followingCount))
-                        .font(DesignFont.Rounded.Bold.normal)
-                    Text("following")
-                        .font(DesignFont.Rounded.Medium.small)
-                        .padding(.trailing, 12)
+                    Button {
+                        NotificationCenter.default.post(name: .NeedNavigationNotification, object: FollowingListView.Initializer(id: account.id, contentType: .following))
+                    } label: {
+                        Text(SuffixNumber.format(account.followingCount))
+                            .font(DesignFont.Rounded.Bold.normal)
+                        Text("following")
+                            .font(DesignFont.Rounded.Medium.small)
+                            .padding(.trailing, 12)
+                    }
                     
-                    Text(SuffixNumber.format(account.followersCount))
-                        .font(DesignFont.Rounded.Bold.normal)
-                    Text("followers")
-                        .font(DesignFont.Rounded.Medium.small)
+                    Button {
+                        NotificationCenter.default.post(name: .NeedNavigationNotification, object: FollowingListView.Initializer(id: account.id, contentType: .follower))
+                    } label: {
+                        Text(SuffixNumber.format(account.followersCount))
+                            .font(DesignFont.Rounded.Bold.normal)
+                        Text("followers")
+                            .font(DesignFont.Rounded.Medium.small)
+                    }
                 }
+                .foregroundStyle(.primary)
                 .padding(.bottom, 24)
                 HtmlText(rawHtml: account.note, emojis: account.emojis.toRemoteEmojis, emojiSize: DesignFont.FontSize.normal - 4)
                     .font(DesignFont.Rounded.Bold.normal)
@@ -126,7 +135,7 @@ public struct FediverseProfileView: View {
     }
     
     @ViewBuilder
-    private var followButtonView: some View {        
+    private var followButtonView: some View {
         if model.fediverseAccountData?.id == model.oAuthData.user?.id {
             EmptyView()
         } else if model.followState == .following {
