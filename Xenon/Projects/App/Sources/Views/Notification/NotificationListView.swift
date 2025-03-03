@@ -32,8 +32,12 @@ struct NotificationListView: View {
                 await manager.fetch(fromBottom: false)
             }
         })
-        .task {
-            await manager.fetch(fromBottom: false)
+        .onFirstAppear {
+            Task {
+                AppDelegate.instance.showLoading(true)
+                await manager.fetch(fromBottom: false)
+                AppDelegate.instance.showLoading(false)
+            }
         }
     }
     

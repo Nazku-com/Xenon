@@ -14,7 +14,11 @@ final class FollowingListManager: ObservableObject {
     @Published var followingList: [FediverseAccountEntity] = []
     @Published var followerList: [FediverseAccountEntity] = []
     
-    @Published var isLoading: Bool = false
+    @Published var isLoading: Bool = false {
+        didSet {
+            AppDelegate.instance.showLoading(isLoading)
+        }
+    }
     
     @MainActor
     func fetch(contentType: FollowingListView.ContentType) async {
