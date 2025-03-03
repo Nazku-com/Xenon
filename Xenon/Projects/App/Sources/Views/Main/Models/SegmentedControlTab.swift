@@ -21,7 +21,7 @@ extension SegmentedControlTab {
 
 extension SegmentedControlTab {
     
-    enum ContentType: Codable {
+    enum ContentType: Codable, Hashable {
         case fediverse(TimelineType)
     }
 }

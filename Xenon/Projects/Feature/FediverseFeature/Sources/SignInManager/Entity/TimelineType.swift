@@ -8,11 +8,26 @@
 
 import Foundation
 
-public enum TimelineType: Equatable, Codable {
+public enum TimelineType: Equatable, Codable, Hashable {
     
     case home
     case local
     case hybrid
     case global
     case hashtag(tag: String)
+    
+    var asString: String {
+        switch self {
+        case .home:
+            "home"
+        case .local:
+            "local"
+        case .hybrid:
+            "hybrid"
+        case .global:
+            "global"
+        case .hashtag:
+            "hashtag"
+        }
+    }
 }

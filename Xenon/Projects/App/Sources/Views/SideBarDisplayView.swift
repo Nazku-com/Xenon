@@ -50,18 +50,19 @@ struct SideBarDisplayView: View {
                 Button {
                     model.selectedSheet = .setting
                 } label: {
-                    Text("settings")
+                    Image(systemName: "gear")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24, height: 24)
                 }
-                
+                .softButtonStyle(Circle(), padding: 1)
+                .padding(.leading, 16)
             }
         }
         .padding(.horizontal, 16)
         .background(Color.Neumorphic.main)
         .sheet(isPresented: $model.isSheetPresented) {
             sheetView
-                .presentationDetents([
-                    .medium, // 중간 높이
-                ])
                 .presentationDragIndicator(.visible)
         }
     }
@@ -71,8 +72,11 @@ struct SideBarDisplayView: View {
         switch model.selectedSheet {
         case .identifier:
             accountsView
+                .presentationDetents([
+                    .medium, // 중간 높이
+                ])
         case .setting:
-            settingView
+            SettingsView()
         case .none:
             EmptyView()
         }
@@ -84,36 +88,33 @@ struct SideBarDisplayView: View {
             Text("Account")
                 .font(DesignFont.Rounded.Bold.large)
                 .padding(.top, 16)
-            List(OAuthDataManager.shared.oAuthDatas) { oAuthData in
-                if let user = oAuthData.user {
-                    Button {
-                        model.selectedSheet = nil
-                        SideBarViewModel.shared.sideBarOpenPublisher.send(false)
-                        OAuthDataManager.shared.currentOAuthData = oAuthData
-                    } label: {
-                        HStack {
-                            KFImageView(
-                                user.avatar,
-                                blurHash: user.avatarBlurhash,
-                                height: 42,
-                                aspect: 1
-                            )
-                            .frame(width: 42, height: 42)
-                            .clipShape(.circle)
-                            userInfoView(oAuthData: oAuthData)
-                            Spacer()
-                        }
-                        .padding(.horizontal, 16)
-                        .foregroundStyle(Color.primary)
-                    }
-                    .swipeActions(edge: .trailing) {
+            List {
+                ForEach(OAuthDataManager.shared.oAuthDatas) { oAuthData in
+                    if let user = oAuthData.user {
                         Button {
-                            OAuthDataManager.shared.oAuthDatas.removeAll(where: { $0 == oAuthData })
+                            model.selectedSheet = nil
+                            SideBarViewModel.shared.sideBarOpenPublisher.send(false)
+                            OAuthDataManager.shared.currentOAuthData = oAuthData
                         } label: {
-                            Text("remove")
+                            HStack {
+                                KFImageView(
+                                    user.avatar,
+                                    blurHash: user.avatarBlurhash,
+                                    height: 42,
+                                    aspect: 1
+                                )
+                                .frame(width: 42, height: 42)
+                                .clipShape(.circle)
+                                userInfoView(oAuthData: oAuthData)
+                                Spacer()
+                            }
+                            .padding(.horizontal, 16)
+                            .foregroundStyle(Color.primary)
                         }
-                        
                     }
+                }
+                .onDelete { indexSet in
+                    OAuthDataManager.shared.oAuthDatas.remove(atOffsets: indexSet) // TODO: -
                 }
             }
             Button {
@@ -123,25 +124,6 @@ struct SideBarDisplayView: View {
                 Text("Add Account")
             }
             .padding(.bottom, 16)
-        }
-    }
-    
-    @ViewBuilder
-    private var settingView: some View {
-        HStack {
-            Button {
-                let numberOfRows = GridRowNumerManager.shared.numberOfRows
-                GridRowNumerManager.shared.updateNumberOfRows(max(0, numberOfRows - 1))
-            } label: {
-                Text("minus")
-            }
-            Spacer()
-            Button {
-                let numberOfRows = GridRowNumerManager.shared.numberOfRows
-                GridRowNumerManager.shared.updateNumberOfRows(numberOfRows + 1)
-            } label: {
-                Text("plus")
-            }
         }
     }
     
@@ -220,4 +202,8 @@ struct SideBarDisplayView: View {
         }
         .padding(.horizontal, -16)
     }
+}
+
+#Preview {
+    SideBarDisplayView(path: .constant(NavigationPath()), model: .init(), oAuthData: FediverseMockData.oAuthData)
 }

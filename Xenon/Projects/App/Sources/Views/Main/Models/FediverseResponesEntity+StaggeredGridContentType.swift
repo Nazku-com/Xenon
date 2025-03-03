@@ -13,7 +13,7 @@ import EmojiText
 extension FediverseResponseEntity: StaggeredGridContentType {
     
     public var view: some View {
-        ContentCellView(content: self) {
+        ContentCellView(content: self, hideContents: !SensitiveContentManager.shared.hideWarning && self.sensitive) {
             HStack {
                 Spacer()
                 Button {
