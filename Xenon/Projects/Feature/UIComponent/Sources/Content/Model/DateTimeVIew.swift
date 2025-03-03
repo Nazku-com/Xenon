@@ -1,5 +1,5 @@
 //
-//  DateTimeVIew.swift
+//  DateTimeView.swift
 //  UIComponent
 //
 //  Created by 김수환 on 2/2/25.
@@ -8,11 +8,11 @@
 
 import SwiftUI
 
-struct DateTimeVIew: View {
+public struct DateTimeView: View {
     
     let date: Date
     
-    var body: some View {
+    public var body: some View {
         let seconds = Date().timeIntervalSince1970 - date.timeIntervalSince1970
         if seconds < 86400 { // 1 Day
             Text(Constant.secondsToHoursMinutesSecondsFormatter(Int(seconds)))
@@ -22,11 +22,15 @@ struct DateTimeVIew: View {
                 .font(DesignFont.Rounded.Bold.extraSmall)
         }
     }
+    
+    public init(date: Date) {
+        self.date = date
+    }
 }
 
 // MARK: - Constant
 
-private extension DateTimeVIew {
+private extension DateTimeView {
     
     enum Constant {
         static func secondsToHoursMinutesSecondsFormatter(_ seconds: Int) -> String {
