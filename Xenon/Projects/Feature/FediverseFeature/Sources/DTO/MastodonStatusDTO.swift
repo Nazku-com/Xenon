@@ -103,6 +103,7 @@ public class MastodonResponseDTO: NetworkingDTOType {
         public let followersCount: Int
         public let followingCount: Int
         public let statusesCount: Int
+        public let fields: [Field]?
         public let emojis: [Emoji]?
         
         private enum CodingKeys: String, CodingKey {
@@ -121,6 +122,7 @@ public class MastodonResponseDTO: NetworkingDTOType {
             case followersCount = "followers_count"
             case followingCount = "following_count"
             case statusesCount = "statuses_count"
+            case fields
             case emojis
         }
         
@@ -149,10 +151,39 @@ public class MastodonResponseDTO: NetworkingDTOType {
                 followersCount: followersCount,
                 followingCount: followingCount,
                 statusesCount: statusesCount,
+                fields: fields?.compactMap({ $0.toEntity() }) ?? [],
                 emojis: emojiDictionary
             )
         }
     }
+    
+    public class Field: NetworkingDTOType {
+        
+        let name: String?
+        let value: String?
+        let verifiedAt: String?
+        
+        private enum CodingKeys: String, CodingKey {
+            case name
+            case value
+            case verifiedAt = "verified_at"
+        }
+        
+        public func toEntity() -> FediverseAccountEntity.Field {
+            var date: Date? {
+                guard let verifiedAt else {
+                    return nil
+                }
+                return DateFormatter.fediverseFormatter.date(from: verifiedAt)
+            }
+            return .init(
+                name: name ?? "",
+                value: value ?? "",
+                verifiedAt: date
+            )
+        }
+    }
+
     
     public class Emoji: Codable {
         /// The shortcode of the emoji

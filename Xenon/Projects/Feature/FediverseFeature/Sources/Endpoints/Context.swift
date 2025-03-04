@@ -19,7 +19,7 @@ public extension OauthData {
     
     func context(for id: String) async -> FediverseContext? {
         switch nodeType {
-        case .mastodon, .hollo:
+        case .mastodon, .mastodonCompatible, .hollo:
             let data = await NetworkingService().request(api: MastodonAPI.context(from: url, token: token, id: id), dtoType: [String: [MastodonResponseDTO]].self)
             switch data {
             case .success(let success):

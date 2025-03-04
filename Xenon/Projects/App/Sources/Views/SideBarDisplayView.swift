@@ -61,6 +61,9 @@ struct SideBarDisplayView: View {
         }
         .padding(.horizontal, 16)
         .background(Color.Neumorphic.main)
+        .onFirstAppear {
+            OAuthDataManager.shared.fetchCurrentUserInfo()
+        }
         .sheet(isPresented: $model.isSheetPresented) {
             sheetView
                 .presentationDragIndicator(.visible)

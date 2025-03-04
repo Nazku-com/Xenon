@@ -15,12 +15,13 @@ import os
 public enum NodeType: String, Codable {
     
     case mastodon
+    case mastodonCompatible
     case hollo
     case misskey
     
     func startSignIn(into url: URL, appInfo: AppInfoType, session: WebAuthenticationSession) async -> Result<OauthData, SignInError> {
         switch self {
-        case .mastodon, .hollo:
+        case .mastodon, .mastodonCompatible, .hollo:
             await MastodonSignInManager(webAuthenticationSession: session, nodeType: self).signIn(into: url, appInfo: appInfo)
         case .misskey:
             await MisskeySignInManager(webAuthenticationSession: session).signIn(into: url, appInfo: appInfo)

@@ -13,7 +13,7 @@ public extension OauthData {
     
     func createReaction(to id: String, reaction: String = "♥") async -> FediverseResponseEntity? {
         switch nodeType {
-        case .mastodon, .hollo:
+        case .mastodon, .mastodonCompatible, .hollo:
             let result = await NetworkingService().request(api: MastodonAPI.setFavorite(from: url, token: token, id: id), dtoType: MastodonResponseDTO.self)
             switch result {
             case .success(let success):
@@ -35,7 +35,7 @@ public extension OauthData {
     
     func removeReaction(from id: String) async -> FediverseResponseEntity? {
         switch nodeType {
-        case .mastodon, .hollo:
+        case .mastodon, .mastodonCompatible, .hollo:
             let result = await NetworkingService().request(api: MastodonAPI.unFavorite(from: url, token: token, id: id), dtoType: MastodonResponseDTO.self)
             switch result {
             case .success(let success):

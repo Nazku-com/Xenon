@@ -13,7 +13,7 @@ public extension OauthData {
     
     func post(content: String, visibility: FediverseResponseEntity.Visibility) async -> Result<FediverseResponseEntity, NetworkingServiceError> {
         switch nodeType {
-        case .mastodon, .hollo:
+        case .mastodon, .mastodonCompatible, .hollo:
             let result = await NetworkingService().request(
                 api: MastodonAPI.post(
                     from: url,

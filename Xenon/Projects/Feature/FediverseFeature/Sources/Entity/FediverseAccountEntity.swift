@@ -10,7 +10,7 @@ import Foundation
 import Alamofire
 import NetworkingFeature
 
-public struct FediverseAccountEntity: NetworkingEntityType, Equatable, Hashable {
+public struct FediverseAccountEntity: NetworkingEntityType, Equatable, Hashable, Identifiable {
     
     public static func == (lhs: FediverseAccountEntity, rhs: FediverseAccountEntity) -> Bool {
         lhs.id == rhs.id
@@ -56,6 +56,7 @@ public struct FediverseAccountEntity: NetworkingEntityType, Equatable, Hashable 
     public let followingCount: Int
     /// The number of statuses the account has made.
     public let statusesCount: Int?
+    public let fields: [Field]
     public let emojis: Emojis
     
     public init(
@@ -74,6 +75,7 @@ public struct FediverseAccountEntity: NetworkingEntityType, Equatable, Hashable 
         followersCount: Int,
         followingCount: Int,
         statusesCount: Int? = 0,
+        fields: [Field],
         emojis: Emojis
     ) {
         self.id = id
@@ -91,6 +93,15 @@ public struct FediverseAccountEntity: NetworkingEntityType, Equatable, Hashable 
         self.followersCount = followersCount
         self.followingCount = followingCount
         self.statusesCount = statusesCount
+        self.fields = fields
         self.emojis = emojis
+    }
+    
+    public struct Field: NetworkingEntityType, Hashable, Identifiable {
+        
+        public var id = UUID()
+        public let name: String
+        public let value: String
+        public let verifiedAt: Date?
     }
 }

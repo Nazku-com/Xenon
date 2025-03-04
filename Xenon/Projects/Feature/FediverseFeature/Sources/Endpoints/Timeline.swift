@@ -17,7 +17,7 @@ public extension OauthData {
         maxID: String? = nil
     ) async -> Result<[FediverseResponseEntity], NetworkingServiceError> {
         switch nodeType {
-        case .mastodon:
+        case .mastodon, .mastodonCompatible:
             let data = await NetworkingService().request(
                 api: MastodonAPI.timeline(from: url, token: token, of: type, minID: minID, maxID: maxID),
                 dtoType: [MastodonResponseDTO].self

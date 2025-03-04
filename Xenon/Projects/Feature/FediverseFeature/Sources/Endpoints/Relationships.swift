@@ -13,7 +13,7 @@ public extension OauthData {
     
     func relationships(id: String) async -> Result<[FediverseRelationship], NetworkingServiceError> {
         switch nodeType {
-        case .mastodon, .hollo:
+        case .mastodon, .mastodonCompatible, .hollo:
             let result = await NetworkingService().request(api: MastodonAPI.relationships(from: url, token: token, id: id), dtoType: [FediverseRelationshipsDTO].self)
             return result
             

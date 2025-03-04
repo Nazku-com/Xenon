@@ -2,6 +2,9 @@ import SwiftUI
 
 @main
 struct TuistApp: App {
+    
+    @UIApplicationDelegateAdaptor var delegate: AppDelegate
+    
     var body: some Scene {
         WindowGroup {
             RootView()

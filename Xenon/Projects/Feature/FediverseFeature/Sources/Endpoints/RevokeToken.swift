@@ -13,7 +13,7 @@ public extension OauthData {
     
     func revokeToken() async {
         switch nodeType {
-        case .mastodon, .hollo:
+        case .mastodon, .mastodonCompatible, .hollo:
             return
             
         case .misskey:
