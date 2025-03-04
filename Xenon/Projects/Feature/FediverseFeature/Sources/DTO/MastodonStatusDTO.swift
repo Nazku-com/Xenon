@@ -161,7 +161,7 @@ public class MastodonResponseDTO: NetworkingDTOType {
         
         let name: String?
         let value: String?
-        let verifiedAt: Date?
+        let verifiedAt: String?
         
         private enum CodingKeys: String, CodingKey {
             case name
@@ -170,10 +170,16 @@ public class MastodonResponseDTO: NetworkingDTOType {
         }
         
         public func toEntity() -> FediverseAccountEntity.Field {
-            .init(
+            var date: Date? {
+                guard let verifiedAt else {
+                    return nil
+                }
+                return DateFormatter.fediverseFormatter.date(from: verifiedAt)
+            }
+            return .init(
                 name: name ?? "",
                 value: value ?? "",
-                verifiedAt: verifiedAt
+                verifiedAt: date
             )
         }
     }
