@@ -24,7 +24,7 @@ public struct WKWebViewWrapper: UIViewRepresentable {
         guard let url = url else {
             return webView
         }
-        
+        webView.allowsBackForwardNavigationGestures = true
         webView.load(URLRequest(url: url))
         return webView
     }
