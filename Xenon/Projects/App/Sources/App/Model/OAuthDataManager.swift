@@ -25,6 +25,18 @@ final class OAuthDataManager: ObservableObject {
         }
     }
     
+    func fetchCurrentUserInfo() {
+        Task { @MainActor in
+            if let handle = currentOAuthData?.user?.acct,
+               let currentUserInfo = await currentOAuthData?.userInfo(handle: handle),
+               let index = oAuthDatas.firstIndex(where: { $0.user?.id == currentUserInfo.id })
+            {
+                oAuthDatas[index].user = currentUserInfo
+                currentOAuthData?.user = currentUserInfo
+            }
+        }
+    }
+    
     static let shared = OAuthDataManager()
     
     // MARK: - Save

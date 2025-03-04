@@ -18,7 +18,7 @@ public extension OauthData {
             switch result {
             case .success(let success):
                 return success
-            case .failure(let failure):
+            case .failure:
                 return nil
             }
             
