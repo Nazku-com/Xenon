@@ -13,7 +13,7 @@ public extension OauthData {
     
     func userInfo(handle: String) async -> FediverseAccountEntity? {
         switch nodeType {
-        case .mastodon, .hollo:
+        case .mastodon, .mastodonCompatible, .hollo:
             let result = await NetworkingService().request(api: MastodonAPI.lookup(from: url, token: token, handle: handle), dtoType: MastodonResponseDTO.Account.self)
             switch result {
             case .success(let success):

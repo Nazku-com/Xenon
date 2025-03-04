@@ -29,13 +29,14 @@ public struct SignInManager {
             switch nodeInfo {
             case .success(let success):
                 guard let nodeType = success.nodeType else {
-                    return .failure(.unsupportedServer) // TODO: -
+                    /// if nodeInfo is Not mastodon, hollo or misskey, server assume to be mastodonCompatible
+                    return await NodeType.mastodonCompatible.startSignIn(into: url, appInfo: appInfo, session: webAuthenticationSession)
                 }
                 return await nodeType.startSignIn(into: url, appInfo: appInfo, session: webAuthenticationSession)
-            case .failure(let failure):
+            case .failure:
                 return .failure(.unsupportedServer)
             }
-        case .failure(let failure):
+        case .failure:
             return .failure(.nodeInfoNotFound)
         }
     }

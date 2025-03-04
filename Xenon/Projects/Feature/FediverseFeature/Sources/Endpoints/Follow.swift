@@ -13,7 +13,7 @@ public extension OauthData {
     
     func follow(id: String) async -> Result<FediverseRelationship, NetworkingServiceError> {
         switch nodeType {
-        case .mastodon, .hollo:
+        case .mastodon, .mastodonCompatible, .hollo:
             let result = await NetworkingService().request(api: MastodonAPI.follow(from: url, token: token, id: id), dtoType: FediverseRelationshipsDTO.self)
             return result
             
@@ -24,7 +24,7 @@ public extension OauthData {
     
     func unfollow(id: String) async -> Result<FediverseRelationship, NetworkingServiceError> {
         switch nodeType {
-        case .mastodon, .hollo:
+        case .mastodon, .mastodonCompatible, .hollo:
             let result = await NetworkingService().request(api: MastodonAPI.unfollow(from: url, token: token, id: id), dtoType: FediverseRelationshipsDTO.self)
             return result
             
@@ -35,7 +35,7 @@ public extension OauthData {
     
     func followers(id: String) async -> Result<[FediverseAccountEntity], NetworkingServiceError> {
         switch nodeType {
-        case .mastodon, .hollo:
+        case .mastodon, .mastodonCompatible, .hollo:
             let result = await NetworkingService().request(api: MastodonAPI.followers(from: url, token: token, id: id), dtoType: [MastodonResponseDTO.Account].self)
             return result
             

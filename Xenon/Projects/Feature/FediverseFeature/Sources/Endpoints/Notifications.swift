@@ -13,7 +13,7 @@ public extension OauthData {
     
     func notifications(minID: String? = nil, maxID: String? = nil) async -> Result<[FediverseNotificationEntity], NetworkingServiceError> {
         switch nodeType {
-        case .mastodon, .hollo:
+        case .mastodon, .mastodonCompatible, .hollo:
             let response = await NetworkingService().request(
                 api: MastodonAPI.notifications(from: url, token: token, minID: minID, maxID: maxID),
                 dtoType: [MastodonNotificationDTO].self

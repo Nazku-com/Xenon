@@ -13,7 +13,7 @@ public extension OauthData {
     
     func boost(to id: String) async -> Result<FediverseResponseEntity, NetworkingServiceError> {
         switch nodeType {
-        case .mastodon, .hollo:
+        case .mastodon, .mastodonCompatible, .hollo:
             let result = await NetworkingService().request(api: MastodonAPI.boost(from: url, token: token, id: id), dtoType: MastodonResponseDTO.self)
             return result
             
@@ -24,7 +24,7 @@ public extension OauthData {
     
     func unboost(from id: String) async -> Result<FediverseResponseEntity, NetworkingServiceError> {
         switch nodeType {
-        case .mastodon, .hollo:
+        case .mastodon, .mastodonCompatible, .hollo:
             let result = await NetworkingService().request(api: MastodonAPI.unboost(from: url, token: token, id: id), dtoType: MastodonResponseDTO.self)
             return result
         case .misskey:
