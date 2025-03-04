@@ -24,12 +24,23 @@ final class FollowingListManager: ObservableObject {
     func fetch(contentType: FollowingListView.ContentType) async {
         guard !isLoading else { return }
         isLoading = true
-        let result = await OAuthDataManager.shared.currentOAuthData?.followers(id: userID)
-        switch result {
-        case .success(let success):
-            followerList = success
-        case .failure, .none:
-            print("error")
+        switch contentType {
+        case .following:
+            let result = await OAuthDataManager.shared.currentOAuthData?.following(id: userID)
+            switch result {
+            case .success(let success):
+                followingList = success
+            case .failure, .none:
+                print("error")
+            }
+        case .follower:
+            let result = await OAuthDataManager.shared.currentOAuthData?.followers(id: userID)
+            switch result {
+            case .success(let success):
+                followerList = success
+            case .failure, .none:
+                print("error")
+            }
         }
         isLoading = false
     }

@@ -43,4 +43,15 @@ public extension OauthData {
             return .failure(.networkError("not yet implement"))
         }
     }
+    
+    func following(id: String) async -> Result<[FediverseAccountEntity], NetworkingServiceError> {
+        switch nodeType {
+        case .mastodon, .mastodonCompatible, .hollo:
+            let result = await NetworkingService().request(api: MastodonAPI.following(from: url, token: token, id: id), dtoType: [MastodonResponseDTO.Account].self)
+            return result
+            
+        case .misskey:
+            return .failure(.networkError("not yet implement"))
+        }
+    }
 }
