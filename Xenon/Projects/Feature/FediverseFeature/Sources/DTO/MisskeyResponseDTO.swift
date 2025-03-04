@@ -194,6 +194,7 @@ public struct MisskeyAccountDTO: NetworkingDTOType {
             createdAt: DateFormatter.fediverseFormatter.date(from: createdAt ?? "") ?? Date(),
             followersCount: followersCount ?? 0,
             followingCount: followingCount ?? 0,
+            fields: [], // TODO: -
             emojis: emojis.compactMapValues { URL(string: $0) }
         )
     }

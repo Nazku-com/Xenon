@@ -62,6 +62,7 @@ struct FediverseMockData {
         createdAt: Date(),
         followersCount: 3,
         followingCount: 4,
+        fields: [],
         emojis: .init()
     )
 }

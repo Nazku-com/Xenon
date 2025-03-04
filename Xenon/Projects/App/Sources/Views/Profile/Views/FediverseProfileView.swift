@@ -125,8 +125,22 @@ public struct FediverseProfileView: View {
                 }
                 .foregroundStyle(.primary)
                 .padding(.bottom, 24)
+                
                 HtmlText(rawHtml: account.note, emojis: account.emojis.toRemoteEmojis, emojiSize: DesignFont.FontSize.normal - 4)
                     .font(DesignFont.Rounded.Bold.normal)
+                    .padding(.bottom, 8)
+                
+                ForEach(account.fields) { field in
+                    VStack(alignment: .leading) {
+                        Text(field.name)
+                            .font(DesignFont.Default.Medium.extraSmall)
+                            .foregroundStyle(.secondary)
+                        HtmlText(rawHtml: field.value)
+                            .font(DesignFont.Default.Medium.small)
+                            .foregroundStyle(.primary)
+                    }
+                    .padding(.bottom, 4)
+                }
             }
             Spacer()
         }
