@@ -132,6 +132,11 @@ public struct ContentView: View {
             .navigationTitle("#\(tag)")
         case .url(let url):
             WKWebViewWrapper(url: url) // TODO: - show alert before present webview
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        ShareLink(item: url)
+                    }
+                }
                 .onAppear {
                     navigationBarModel.shrinkBarPublisher.send(true)
                 }.onDisappear {
