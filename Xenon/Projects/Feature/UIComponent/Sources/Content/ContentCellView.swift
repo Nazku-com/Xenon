@@ -22,7 +22,7 @@ public struct ContentCellView<Buttons: View, Content: ContentType>: View {
     public var body: some View {
         VStack(alignment: .leading) {
             if !content.content.isEmpty {
-                HtmlText(rawHtml: content.content, emojis: content.remoteEmoji, emojiSize: DesignFont.FontSize.normal - 4)
+                HtmlText(rawHtml: content.content, emojis: content.remoteEmoji, emojiSize: DesignFont.FontSize.normal)
                     .lineLimit(contentLineLimit)
                     .multilineTextAlignment(.leading)
                     .font(DesignFont.Default.light.normal)
@@ -104,7 +104,7 @@ public struct ContentCellView<Buttons: View, Content: ContentType>: View {
     private func reblogContent(content: Content) -> some View {
         VStack(alignment: .leading) {
             if !content.content.isEmpty {
-                HtmlText(rawHtml: content.content, emojis: content.remoteEmoji, emojiSize: DesignFont.FontSize.normal - 4)
+                HtmlText(rawHtml: content.content, emojis: content.remoteEmoji, emojiSize: DesignFont.FontSize.normal)
                     .lineLimit(contentLineLimit)
                     .multilineTextAlignment(.leading)
                     .font(DesignFont.Default.light.normal)
