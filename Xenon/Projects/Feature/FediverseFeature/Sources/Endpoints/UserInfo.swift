@@ -14,7 +14,15 @@ public extension OauthData {
     func userInfo(handle: String) async -> FediverseAccountEntity? {
         switch nodeType {
         case .mastodon, .mastodonCompatible, .hollo:
-            let result = await NetworkingService().request(api: MastodonAPI.lookup(from: url, token: token, handle: handle), dtoType: MastodonResponseDTO.Account.self)
+            let safeHandle: String = {
+                guard handle.starts(with: "@") else {
+                    return handle
+                }
+                var handle = handle
+                handle.remove(at: handle.startIndex)
+                return handle
+            }()
+            let result = await NetworkingService().request(api: MastodonAPI.lookup(from: url, token: token, handle: safeHandle), dtoType: MastodonResponseDTO.Account.self)
             switch result {
             case .success(let success):
                 return success
