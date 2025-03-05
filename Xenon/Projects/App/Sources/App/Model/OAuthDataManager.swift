@@ -18,8 +18,10 @@ final class OAuthDataManager: ObservableObject {
     @Published var oAuthDatas = load() {
         didSet {
             Self.save(oAuthDatas: oAuthDatas)
-            if let currentOAuthData,
-               !oAuthDatas.contains(currentOAuthData) {
+            guard let currentOAuthData else { return }
+            if let fetchedCurrentOAuthData = oAuthDatas.first(where: { $0.user?.id == currentOAuthData.user?.id }) {
+                self.currentOAuthData = fetchedCurrentOAuthData
+            } else {
                 self.currentOAuthData = oAuthDatas.first
             }
         }
@@ -32,7 +34,6 @@ final class OAuthDataManager: ObservableObject {
                let index = oAuthDatas.firstIndex(where: { $0.user?.id == currentUserInfo.id })
             {
                 oAuthDatas[index].user = currentUserInfo
-                currentOAuthData?.user = currentUserInfo
             }
         }
     }
