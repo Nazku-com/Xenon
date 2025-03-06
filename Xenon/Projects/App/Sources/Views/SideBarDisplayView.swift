@@ -76,10 +76,14 @@ struct SideBarDisplayView: View {
         case .identifier:
             accountsView
                 .presentationDetents([
-                    .medium, // 중간 높이
+                    .medium,
                 ])
         case .setting:
             SettingsView()
+                .presentationDetents([
+                    .medium,
+                    .large
+                ])
         case .none:
             EmptyView()
         }
