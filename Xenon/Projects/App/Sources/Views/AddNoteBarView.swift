@@ -47,9 +47,18 @@ struct AddNoteBarView: View {
                 
                 Button {
                     Task {
-                        _ = await OAuthDataManager.shared.currentOAuthData?.post(content: text, visibility: .public)
-                        text = ""
-                        NavigationBarViewModel.shared.isAddNoteBarViewShown = false
+                        AppDelegate.instance.showLoading(true)
+                        isFocused = false
+                        let result = await OAuthDataManager.shared.currentOAuthData?.post(content: text, visibility: .public)
+                        switch result {
+                        case .success:
+                            text = ""
+                            NavigationBarViewModel.shared.isAddNoteBarViewShown = false
+                        case .failure, .none:
+                            isFocused = true
+                            return // TODO: -
+                        }
+                        AppDelegate.instance.showLoading(false)
                     }
                 } label: {
                     Image(systemName: "paperplane.fill")
@@ -59,7 +68,7 @@ struct AddNoteBarView: View {
             }
         }
         .padding(8)
-        .onAppear {
+        .onFirstAppear {
             SideBarViewModel.shared.sideBarOpenablePublisher.send(false)
             isFocused = true
         }
