@@ -22,7 +22,7 @@ public struct ContentCellView<Buttons: View, Content: ContentType>: View {
     public var body: some View {
         VStack(alignment: .leading) {
             if !content.content.isEmpty {
-                HtmlText(rawHtml: content.content, emojis: content.remoteEmoji, emojiSize: DesignFont.FontSize.normal - 4)
+                HtmlText(rawHtml: content.content, emojis: content.remoteEmoji, emojiSize: DesignFont.FontSize.normal)
                     .lineLimit(contentLineLimit)
                     .multilineTextAlignment(.leading)
                     .font(DesignFont.Default.light.normal)
@@ -54,8 +54,7 @@ public struct ContentCellView<Buttons: View, Content: ContentType>: View {
                     .clipShape(.circle)
                 }
 
-                EmojiText(content.account.name, emojis: content.account.remoteEmoji)
-                    .emojiText.size(DesignFont.FontSize.extraSmall - 2)
+                HtmlText(rawHtml: content.account.name, emojis: content.account.remoteEmoji, emojiSize: DesignFont.FontSize.extraSmall)
                     .font(DesignFont.Rounded.Medium.extraSmall)
                     .lineLimit(2)
                 Spacer()
@@ -104,7 +103,7 @@ public struct ContentCellView<Buttons: View, Content: ContentType>: View {
     private func reblogContent(content: Content) -> some View {
         VStack(alignment: .leading) {
             if !content.content.isEmpty {
-                HtmlText(rawHtml: content.content, emojis: content.remoteEmoji, emojiSize: DesignFont.FontSize.normal - 4)
+                HtmlText(rawHtml: content.content, emojis: content.remoteEmoji, emojiSize: DesignFont.FontSize.normal)
                     .lineLimit(contentLineLimit)
                     .multilineTextAlignment(.leading)
                     .font(DesignFont.Default.light.normal)
@@ -125,8 +124,7 @@ public struct ContentCellView<Buttons: View, Content: ContentType>: View {
                     .frame(width: 32, height: 32)
                     .clipShape(.circle)
                 }
-                EmojiText(content.account.name, emojis: content.account.remoteEmoji)
-                    .emojiText.size(DesignFont.FontSize.extraSmall - 2)
+                HtmlText(rawHtml: content.account.name, emojis: content.account.remoteEmoji, emojiSize: DesignFont.FontSize.extraSmall)
                     .font(DesignFont.Rounded.Medium.extraSmall)
                     .lineLimit(2)
             }

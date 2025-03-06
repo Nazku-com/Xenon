@@ -45,6 +45,17 @@ public struct FediverseContentDetailView: View {
         HStack(spacing: 20) {
             Spacer()
             
+            if let contentURL = content.url {
+                ShareLink(item: contentURL) {
+                    Image(systemName: "square.and.arrow.up")
+                        .resizable()
+                        .scaledToFit()
+                        .foregroundColor(.gray)
+                        .frame(height: 24)
+                }
+                .padding(.top, 12)
+            }
+            
             VStack {
                 Text(SuffixNumber.format(content.reblogsCount))
                 Button {

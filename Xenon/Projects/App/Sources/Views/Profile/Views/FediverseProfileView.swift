@@ -60,8 +60,7 @@ public struct FediverseProfileView: View {
                     )
                     .clipShape(.circle)
                     let name = account.displayName ?? account.username
-                    EmojiText(name, emojis: account.emojis.toRemoteEmojis)
-                        .emojiText.size(DesignFont.FontSize.normal - 4)
+                    HtmlText(rawHtml: name, emojis: account.emojis.toRemoteEmojis, emojiSize: DesignFont.FontSize.normal)
                         .font(DesignFont.Rounded.Bold.normal)
                         .padding(.trailing, 32)
                     Spacer()
@@ -90,8 +89,7 @@ public struct FediverseProfileView: View {
                 )
                 HStack {
                     let name = account.displayName ?? account.username
-                    EmojiText(name, emojis: account.emojis.toRemoteEmojis)
-                        .emojiText.size(DesignFont.FontSize.extralarge - 4)
+                    HtmlText(rawHtml: name, emojis: account.emojis.toRemoteEmojis, emojiSize: DesignFont.FontSize.extralarge)
                         .font(DesignFont.Rounded.Bold.extralarge)
                     
                     Spacer()
@@ -126,16 +124,17 @@ public struct FediverseProfileView: View {
                 .foregroundStyle(.primary)
                 .padding(.bottom, 24)
                 
-                HtmlText(rawHtml: account.note, emojis: account.emojis.toRemoteEmojis, emojiSize: DesignFont.FontSize.normal - 4)
+                let remoteEmojis = account.emojis.toRemoteEmojis
+                HtmlText(rawHtml: account.note, emojis: remoteEmojis, emojiSize: DesignFont.FontSize.normal)
                     .font(DesignFont.Rounded.Bold.normal)
                     .padding(.bottom, 8)
                 
                 ForEach(account.fields) { field in
                     VStack(alignment: .leading) {
-                        Text(field.name)
+                        HtmlText(rawHtml: field.name, emojis: remoteEmojis, emojiSize: DesignFont.FontSize.extraSmall)
                             .font(DesignFont.Default.Medium.extraSmall)
                             .foregroundStyle(.secondary)
-                        HtmlText(rawHtml: field.value)
+                        HtmlText(rawHtml: field.value, emojis: remoteEmojis, emojiSize: DesignFont.FontSize.extraSmall)
                             .font(DesignFont.Default.Medium.small)
                             .foregroundStyle(.primary)
                     }

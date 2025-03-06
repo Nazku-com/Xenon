@@ -103,8 +103,7 @@ struct NotificationListView: View {
                 
                 VStack(alignment: .leading, spacing: 4) {
                     let name = sentUser.displayName ?? sentUser.username
-                    EmojiText(name, emojis: sentUser.emojis.toRemoteEmojis)
-                        .emojiText.size(DesignFont.FontSize.normal - 4)
+                    HtmlText(rawHtml: name, emojis: sentUser.emojis.toRemoteEmojis, emojiSize: DesignFont.FontSize.normal)
                         .font(DesignFont.Rounded.Bold.normal)
                     Text(sentUser.acct)
                         .font(DesignFont.Default.Medium.extraSmall)
