@@ -142,8 +142,7 @@ struct SideBarDisplayView: View {
                 return displayName
             }()
             VStack(alignment: .leading) {
-                EmojiText(name, emojis: user.emojis.toRemoteEmojis)
-                    .emojiText.size(DesignFont.FontSize.extralarge - 4)
+                HtmlText(rawHtml: name, emojis: user.emojis.toRemoteEmojis, emojiSize: DesignFont.FontSize.extralarge)
                     .font(DesignFont.Rounded.Bold.extralarge)
                 
                 Text("\(user.acct)@\(oAuthData.url.host() ?? "")")

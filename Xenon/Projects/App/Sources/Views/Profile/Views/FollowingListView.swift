@@ -59,8 +59,7 @@ struct FollowingListView: View {
             
             VStack(alignment: .leading, spacing: 4) {
                 let name = user.displayName ?? user.username
-                EmojiText(name, emojis: user.emojis.toRemoteEmojis)
-                    .emojiText.size(DesignFont.FontSize.normal - 4)
+                HtmlText(rawHtml: name, emojis: user.emojis.toRemoteEmojis, emojiSize: DesignFont.FontSize.normal)
                     .font(DesignFont.Rounded.Bold.normal)
                 Text(user.acct)
                     .font(DesignFont.Default.Medium.extraSmall)

@@ -60,8 +60,7 @@ public struct FediverseProfileView: View {
                     )
                     .clipShape(.circle)
                     let name = account.displayName ?? account.username
-                    EmojiText(name, emojis: account.emojis.toRemoteEmojis)
-                        .emojiText.size(DesignFont.FontSize.normal - 4)
+                    HtmlText(rawHtml: name, emojis: account.emojis.toRemoteEmojis, emojiSize: DesignFont.FontSize.normal)
                         .font(DesignFont.Rounded.Bold.normal)
                         .padding(.trailing, 32)
                     Spacer()
@@ -90,8 +89,7 @@ public struct FediverseProfileView: View {
                 )
                 HStack {
                     let name = account.displayName ?? account.username
-                    EmojiText(name, emojis: account.emojis.toRemoteEmojis)
-                        .emojiText.size(DesignFont.FontSize.extralarge - 4)
+                    HtmlText(rawHtml: name, emojis: account.emojis.toRemoteEmojis, emojiSize: DesignFont.FontSize.extralarge)
                         .font(DesignFont.Rounded.Bold.extralarge)
                     
                     Spacer()

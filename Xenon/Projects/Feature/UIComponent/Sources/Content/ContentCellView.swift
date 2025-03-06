@@ -54,8 +54,7 @@ public struct ContentCellView<Buttons: View, Content: ContentType>: View {
                     .clipShape(.circle)
                 }
 
-                EmojiText(content.account.name, emojis: content.account.remoteEmoji)
-                    .emojiText.size(DesignFont.FontSize.extraSmall - 2)
+                HtmlText(rawHtml: content.account.name, emojis: content.account.remoteEmoji, emojiSize: DesignFont.FontSize.extraSmall)
                     .font(DesignFont.Rounded.Medium.extraSmall)
                     .lineLimit(2)
                 Spacer()
@@ -125,8 +124,7 @@ public struct ContentCellView<Buttons: View, Content: ContentType>: View {
                     .frame(width: 32, height: 32)
                     .clipShape(.circle)
                 }
-                EmojiText(content.account.name, emojis: content.account.remoteEmoji)
-                    .emojiText.size(DesignFont.FontSize.extraSmall - 2)
+                HtmlText(rawHtml: content.account.name, emojis: content.account.remoteEmoji, emojiSize: DesignFont.FontSize.extraSmall)
                     .font(DesignFont.Rounded.Medium.extraSmall)
                     .lineLimit(2)
             }
