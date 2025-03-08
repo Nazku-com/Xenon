@@ -15,6 +15,7 @@ struct StaggeredGridView<Model: StaggeredGridViewModelType>: View {
     @State var anchorID: String?
     @State var translateText = ""
     @State var isPresented = false
+    @Environment(RouterPath.self) private var routerPath
     
     public var body: some View {
         if #available(iOS 17.4, *) {
@@ -69,9 +70,9 @@ struct StaggeredGridView<Model: StaggeredGridViewModelType>: View {
         if model.items.count > index {
             LazyVStack {
                 ForEach(model.items[index], id:\.id) { content in
-                    content.view
+                    content.view(routerPath: _routerPath)
                         .onTapGesture {
-                            NotificationCenter.default.post(name: .NeedNavigationNotification, object: content)
+                            routerPath.path.append(Notification(name: .NeedNavigationNotification, object: content))
                         }
                         .contextMenu {
                             VStack {

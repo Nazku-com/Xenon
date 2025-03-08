@@ -13,8 +13,8 @@ import UIComponent
 struct FollowingListView: View {
     
     @State var selectedContent: String
-    
     @ObservedObject private var manager: FollowingListManager
+    @Environment(RouterPath.self) private var routerPath
     
     var body: some View {
         VStack {
@@ -68,7 +68,7 @@ struct FollowingListView: View {
             }
         }
         .onTapGesture {
-            NotificationCenter.default.post(name: .NeedNavigationNotification, object: user)
+            routerPath.path.append(NavigationType.userAccountInfo(user))
         }
     }
     

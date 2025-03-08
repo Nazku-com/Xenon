@@ -15,6 +15,7 @@ public struct FediverseProfileView: View {
     
     @ObservedObject var model: FediverseProfileViewModel
     @State private var bannerHeight: CGFloat = 0
+    @Environment(RouterPath.self) private var routerPath
     
     public var body: some View {
         VStack {
@@ -103,7 +104,7 @@ public struct FediverseProfileView: View {
                 
                 HStack(alignment: .bottom, spacing: 4) {
                     Button {
-                        NotificationCenter.default.post(name: .NeedNavigationNotification, object: FollowingListView.Initializer(id: account.id, contentType: .following))
+                        routerPath.path.append(Notification(name: .NeedNavigationNotification, object: FollowingListView.Initializer(id: account.id, contentType: .following))) // TODO: -
                     } label: {
                         Text(SuffixNumber.format(account.followingCount))
                             .font(DesignFont.Rounded.Bold.normal)
@@ -113,7 +114,7 @@ public struct FediverseProfileView: View {
                     }
                     
                     Button {
-                        NotificationCenter.default.post(name: .NeedNavigationNotification, object: FollowingListView.Initializer(id: account.id, contentType: .follower))
+                        routerPath.path.append(Notification(name: .NeedNavigationNotification, object: FollowingListView.Initializer(id: account.id, contentType: .follower))) // TODO: -
                     } label: {
                         Text(SuffixNumber.format(account.followersCount))
                             .font(DesignFont.Rounded.Bold.normal)

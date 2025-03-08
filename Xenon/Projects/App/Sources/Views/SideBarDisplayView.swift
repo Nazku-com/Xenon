@@ -13,7 +13,6 @@ import Kingfisher
 
 struct SideBarDisplayView: View {
     
-    @Binding var path: NavigationPath
     @ObservedObject var model = SideBarDisplayViewModel()
     let oAuthData: OauthData
     
@@ -22,7 +21,7 @@ struct SideBarDisplayView: View {
             if let user = oAuthData.user {
                 HStack {
                     Button {
-                        path.append(NavigationType.userAccountInfo(user))
+                        NotificationCenter.default.post(name: .NeedNavigationNotification, object: user)
                     } label: {
                         KFImage(user.avatar)
                             .resizable()
@@ -76,10 +75,14 @@ struct SideBarDisplayView: View {
         case .identifier:
             accountsView
                 .presentationDetents([
-                    .medium, // 중간 높이
+                    .medium,
                 ])
         case .setting:
             SettingsView()
+                .presentationDetents([
+                    .medium,
+                    .large
+                ])
         case .none:
             EmptyView()
         }
@@ -122,7 +125,7 @@ struct SideBarDisplayView: View {
             }
             Button {
                 model.selectedSheet = nil
-                path.append(NavigationType.login)
+                NotificationCenter.default.post(name: .showLoginScreen, object: nil)
             } label: {
                 Text("Add Account")
             }
@@ -206,6 +209,7 @@ struct SideBarDisplayView: View {
     }
 }
 
-#Preview {
-    SideBarDisplayView(path: .constant(NavigationPath()), model: .init(), oAuthData: FediverseMockData.oAuthData)
+extension Notification.Name {
+    
+    static let showLoginScreen = Notification.Name("showLoginScreen")
 }

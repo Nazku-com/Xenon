@@ -6,12 +6,14 @@
 //
 
 import SwiftUI
+import UIComponent
 import FediverseFeature
 
 struct MainContentView: View {
     
     let tab: SegmentedControlTab
     @State var needRefresh: Bool = false
+    @Binding var path: RouterPath
     @ObservedObject var oAuthDataManager = OAuthDataManager.shared
     @ObservedObject var gridRowNumerManager = GridRowNumerManager.shared
     
@@ -30,6 +32,7 @@ struct MainContentView: View {
                 numberOfRows: gridRowNumerManager.numberOfRows,
                 timeline: fediverseContentType
             ))
+            .environment(path)
         default:
             EmptyView()
         }

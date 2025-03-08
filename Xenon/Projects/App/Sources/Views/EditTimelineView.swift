@@ -33,6 +33,8 @@ struct EditTimelineView: View {
                     }
                 }
             }
+            .scrollIndicators(.hidden)
+            
             if let selectedUserID {
                 HStack {
                     Button {
