@@ -117,6 +117,7 @@ struct NotificationListView: View {
                     if let status = notification.status {
                         HtmlText(rawHtml: status.content, emojis: status.emojis.toRemoteEmojis)
                     }
+                    DateTimeView(date: notification.createdAt)
                 }
             }
         }
