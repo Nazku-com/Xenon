@@ -14,6 +14,7 @@ import FediverseFeature
 public struct FediverseContentDetailView: View {
     
     @ObservedObject var model: FediverseContentDetailViewModel
+    @Environment(RouterPath.self) private var routerPath
     
     public var body: some View {
         ScrollView {
@@ -25,7 +26,7 @@ public struct FediverseContentDetailView: View {
                 ) {
                     buttonView(content: content)
                 } onAvatarTapped: { account in
-                    NotificationCenter.default.post(name: .NeedNavigationNotification, object: account)
+                    routerPath.path.append(NavigationType.userAccountInfo(account))
                 }
             }
         }

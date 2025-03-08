@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIComponent
 
 public protocol StaggeredGridViewModelType: ObservableObject {
     
@@ -23,7 +24,7 @@ public protocol StaggeredGridContentType {
     associatedtype ContextMenu: View
     
     var id: String { get }
-    var view: Content { get }
+    func view(routerPath: Environment<RouterPath>) -> Content
     var contextMenu: ContextMenu { get }
     var contentString: String { get }
 }

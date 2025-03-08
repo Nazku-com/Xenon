@@ -13,18 +13,4 @@ enum MainTab: String, CaseIterable {
     case home
     case search
     case message
-    
-    @ViewBuilder
-    func view(
-        oAuthData: OauthData
-    ) -> some View {
-        switch self {
-        case .home:
-            MainView(model: .init(oAuthData: oAuthData))
-        case .search:
-            Text("search")
-        case .message:
-            NotificationListView()
-        }
-    }
 }

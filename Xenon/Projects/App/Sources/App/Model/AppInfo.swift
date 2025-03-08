@@ -13,6 +13,6 @@ public struct AppInfo: AppInfoType {
     static let shared = AppInfo()
     public let clientName = "xenon"
     public let scheme = "xenon://"
-    public let weblink = "https://github.com/tkgka/" // TODO: -
-    public let defaultServer = "xenon.social" // TODO: -
+    public let weblink = "https://xenon.social/@xenon"
+    public let defaultServer = "xenon.social"
 }

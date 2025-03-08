@@ -12,7 +12,7 @@ import EmojiText
 
 extension FediverseResponseEntity: StaggeredGridContentType {
     
-    public var view: some View {
+    public func view(routerPath: Environment<RouterPath>) -> some View {
         ContentCellView(content: self, hideContents: !SensitiveContentManager.shared.hideWarning && self.sensitive) {
             HStack {
                 Spacer()
@@ -28,7 +28,9 @@ extension FediverseResponseEntity: StaggeredGridContentType {
                 .softButtonStyle(Circle(), padding: 8)
             }
         } onAvatarTapped: { account in
-            NotificationCenter.default.post(name: .NeedNavigationNotification, object: account)
+            Task { @MainActor in
+                routerPath.wrappedValue.path.append(NavigationType.userAccountInfo(account))
+            }
         }
     }
     
@@ -105,5 +107,5 @@ extension FediverseAccountEntity: @retroactive AccountType {
 
 extension Notification.Name {
     
-  static let NeedRefreshFediverseResponse = Notification.Name("NeedRefreshFediverseResponse")
+    static let NeedRefreshFediverseResponse = Notification.Name("NeedRefreshFediverseResponse")
 }

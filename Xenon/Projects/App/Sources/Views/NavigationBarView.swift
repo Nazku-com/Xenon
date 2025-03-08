@@ -19,7 +19,6 @@ final class NavigationBarViewModel: ObservableObject {
 struct NavigationBarView: View {
     
     @ObservedObject private var model = NavigationBarViewModel.shared
-    @Binding var path: NavigationPath
     @Binding var navigationBarModel: NavigationBarModel
     var body: some View {
         VStack {
@@ -30,8 +29,8 @@ struct NavigationBarView: View {
             }
         }
         .animation(.easeInOut, value: model.isAddNoteBarViewShown)
-        .onChange(of: path) { _, _ in
-            model.isAddNoteBarViewShown = false
-        }
+//        .onChange(of: path) { _, _ in
+//            model.isAddNoteBarViewShown = false
+//        }
     }
 }

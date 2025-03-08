@@ -31,7 +31,8 @@ public final class NavigationBarModel: ObservableObject {
     
     // MARK: - Initialization
     
-    public init() {}
+    public static let shared = NavigationBarModel()
+    private init() {}
 }
 
 public struct BottomNavigationBar: View {
@@ -103,16 +104,5 @@ public struct BottomNavigationBar: View {
     
     public init(model: NavigationBarModel) {
         self.model = model
-    }
-}
-
-#Preview {
-    VStack {
-        Rectangle()
-            .fill(Color.Neumorphic.main)
-    }
-    .background(Color.Neumorphic.main)
-    .overlay(alignment: .bottom) {
-        BottomNavigationBar(model: .init())
     }
 }
