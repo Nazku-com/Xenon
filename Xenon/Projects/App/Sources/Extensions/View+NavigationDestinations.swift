@@ -14,27 +14,40 @@ extension View {
     func NavigationDestinations(for routerPath: Binding<RouterPath>) -> some View {
         self
             .onAppear {
-                SideBarViewModel.shared.sideBarOpenablePublisher.send(true)
+                let numberOfPath = routerPath.path.wrappedValue.count
+                SideBarViewModel.shared.sideBarOpenablePublisher.send(numberOfPath == 0)
             }
-            .onDisappear {
-                SideBarViewModel.shared.sideBarOpenablePublisher.send(false)
-            }
+            .onChange(of: routerPath.path.wrappedValue.count, { _, newValue in
+                SideBarViewModel.shared.sideBarOpenablePublisher.send(newValue == 0)
+            })
             .navigationDestination(for: URLHandler.URLType.self) { urlType in
                 if let oAuthData = OAuthDataManager.shared.currentOAuthData {
                     destinationView(from: urlType, oAuthData: oAuthData)
-                        .environment(routerPath.wrappedValue)
+                        .environment(routerPath.wrappedValue)                    
+                        .onAppear {
+                            let numberOfPath = routerPath.path.wrappedValue.count
+                            SideBarViewModel.shared.sideBarOpenablePublisher.send(numberOfPath == 0)
+                        }
                 }
             }
             .navigationDestination(for: Notification.self) { notification in
                 if let oAuthData = OAuthDataManager.shared.currentOAuthData {
                     destinationView(from: notification, oAuthData: oAuthData)
                         .environment(routerPath.wrappedValue)
+                        .onAppear {
+                            let numberOfPath = routerPath.path.wrappedValue.count
+                            SideBarViewModel.shared.sideBarOpenablePublisher.send(numberOfPath == 0)
+                        }
                 }
             }
             .navigationDestination(for: NavigationType.self) { notification in
                 if let oAuthData = OAuthDataManager.shared.currentOAuthData {
                     destinationView(from: notification, oAuthData: oAuthData)
                         .environment(routerPath.wrappedValue)
+                        .onAppear {
+                            let numberOfPath = routerPath.path.wrappedValue.count
+                            SideBarViewModel.shared.sideBarOpenablePublisher.send(numberOfPath == 0)
+                        }
                 }
             }
     }
