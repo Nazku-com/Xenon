@@ -13,6 +13,12 @@ extension View {
     
     func NavigationDestinations(for routerPath: Binding<RouterPath>) -> some View {
         self
+            .onAppear {
+                SideBarViewModel.shared.sideBarOpenablePublisher.send(true)
+            }
+            .onDisappear {
+                SideBarViewModel.shared.sideBarOpenablePublisher.send(false)
+            }
             .navigationDestination(for: URLHandler.URLType.self) { urlType in
                 if let oAuthData = OAuthDataManager.shared.currentOAuthData {
                     destinationView(from: urlType, oAuthData: oAuthData)
