@@ -6,17 +6,18 @@
 //
 
 import SwiftUI
+import FediverseFeature
 
 struct URLHandler {
     
     static let shared = URLHandler()
     
-    func checkDestination(_ url: URL) -> URLType {
-        let type = checkURLType(for: url)
+    func checkDestination(_ url: URL) async -> URLType {
+        let type = await checkURLType(for: url)
         return type
     }
     
-    private func checkURLType(for url: URL) -> URLType {
+    private func checkURLType(for url: URL) async -> URLType {
         if url.pathComponents.contains(where: { $0 == "tags" }),
            let tag = url.pathComponents.last
         {
@@ -25,7 +26,9 @@ struct URLHandler {
         if url.lastPathComponent.first == "@",
            let host = url.host() {
             let handle = "\(url.lastPathComponent)@\(host)"
-            return .handle(handle: handle)
+            if let account = await OAuthDataManager.shared.currentOAuthData?.userInfo(handle: handle) {
+                return .handle(account: account)
+            }
         }
         return .url(url: url)
     }
@@ -38,7 +41,7 @@ extension URLHandler {
     
     enum URLType: Hashable {
         
-        case handle(handle: String)
+        case handle(account: FediverseAccountEntity)
         case hashtag(tag: String)
         case url(url: URL)
     }

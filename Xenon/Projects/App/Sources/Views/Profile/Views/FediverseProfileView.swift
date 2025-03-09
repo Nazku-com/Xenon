@@ -17,23 +17,30 @@ public struct FediverseProfileView: View {
     @State private var bannerHeight: CGFloat = 0
     @Environment(RouterPath.self) private var routerPath
     
+    @State private var anchorID: SegmentContent?
+    @State private var selectedContent: String = SegmentContent.Post.rawValue
+    private var profileModels: [SegmentContent: FediverseAccountDetailViewModel]
+    init(model: FediverseProfileViewModel) {
+        self.model = model
+        self.profileModels = [:]
+        self.profileModels[.Post] = FediverseAccountDetailViewModel(userId: model.fediverseAccountData.id, contentType: .post)
+        self.profileModels[.Reply] = FediverseAccountDetailViewModel(userId: model.fediverseAccountData.id, contentType: .reply)
+        self.profileModels[.Media] = FediverseAccountDetailViewModel(userId: model.fediverseAccountData.id, contentType: .media)
+        self.profileModels[.reblog] = FediverseAccountDetailViewModel(userId: model.fediverseAccountData.id, contentType: .reblog)
+    }
+    
     public var body: some View {
-        VStack {
-            if let account = model.fediverseAccountData {
-                contentView(account: account)
-            } else {
-                Text("Loading")
+        contentView(account: model.fediverseAccountData)
+            .task { @MainActor in
+                await model.fetch(fromBottom: false)
             }
-        }.task { @MainActor in
-            await model.fetch(fromBottom: false)
-        }
     }
     
     @ViewBuilder func contentView(account: FediverseAccountEntity) -> some View {
         ScrollView {
             VStack {
                 avatarView(account: account)
-                FediverseProfileTabView()
+                profileDetailView
             }
             .background {
                 blurryBackground
@@ -68,6 +75,40 @@ public struct FediverseProfileView: View {
                 }
                 .frame(height: 32)
             }
+        }
+    }
+    
+    @ViewBuilder
+    private var profileDetailView: some View {
+        LazyVStack(pinnedViews: .sectionHeaders) {
+            Section {
+                ScrollView(.horizontal) {
+                    HStack(alignment: .top, spacing: 0) {
+                        ForEach(SegmentContent.allCases, id: \.self) { content in
+                            if let profileModel = profileModels[content] {
+                                FediverseAccountDetailView(model: profileModel)
+                                    .environment(routerPath)
+                            }
+                        }
+                    }
+                }
+                .scrollDisabled(true) // TODO: -
+                .scrollIndicators(.hidden)
+                .introspect(.scrollView, on: .iOS(.v13, .v14, .v15, .v16, .v17, .v18)) { scrollView in
+                    scrollView.isPagingEnabled = true
+                }
+                .scrollPosition(id: $anchorID, anchor: .topLeading)
+            } header: {
+                SegmentedControl(
+                    contentList: SegmentContent.allCases.compactMap({ $0.rawValue }),
+                    selectedContent: $selectedContent
+                )
+                .background(Color.Neumorphic.main)
+            }
+        }
+        .background(Color.Neumorphic.main)
+        .onChange(of: selectedContent) { _, newValue in
+            anchorID = SegmentContent(rawValue: newValue)
         }
     }
     
@@ -150,7 +191,7 @@ public struct FediverseProfileView: View {
     
     @ViewBuilder
     private var followButtonView: some View {
-        if model.fediverseAccountData?.id == model.oAuthData.user?.id {
+        if model.fediverseAccountData.id == model.oAuthData.user?.id {
             EmptyView()
         } else if model.followState == .following {
             Menu {
@@ -256,5 +297,13 @@ private extension FediverseProfileView {
         
         static let avatarHeight: CGFloat = 70
         static let bannerHeight: CGFloat = 180
+    }
+    
+    enum SegmentContent: String, CaseIterable {
+        
+        case Post
+        case Reply
+        case Media
+        case reblog
     }
 }

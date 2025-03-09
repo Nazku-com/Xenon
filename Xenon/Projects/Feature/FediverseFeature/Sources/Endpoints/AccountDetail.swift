@@ -13,20 +13,14 @@ public extension OauthData {
     
     func accountDetail(
         id: String,
+        contentType: ContentType,
         minID: String? = nil,
         maxID: String? = nil
     ) async -> Result<[FediverseResponseEntity], NetworkingServiceError> {
         switch nodeType {
         case .mastodon, .mastodonCompatible, .hollo:
             let data = await NetworkingService().request(
-                api: MastodonAPI.accountStatus(from: url, token: token, id: id, data: .init(
-                    onlyMedia: false,
-                    excludeReplies: false,
-                    excludeReblogs: false,
-                    pinned: false,
-                    minID: minID,
-                    maxID: maxID
-                )),
+                api: MastodonAPI.accountStatus(from: url, token: token, id: id, data: contentType.accountDataStatus),
                 dtoType: [MastodonResponseDTO].self
             )
             
@@ -34,6 +28,27 @@ public extension OauthData {
             
         case .misskey:
             return .failure(.networkError("not yet implement"))
+        }
+    }
+    
+    enum ContentType {
+        
+        case post
+        case reply
+        case media
+        case reblog
+        
+        var accountDataStatus: AccountStatusData {
+            switch self {
+            case .post:
+                    .init(onlyMedia: false, excludeReplies: true, excludeReblogs: true, pinned: false, minID: nil, maxID: nil)
+            case .reply:
+                    .init(onlyMedia: false, excludeReplies: false, excludeReblogs: true, pinned: false, minID: nil, maxID: nil) // TODO: -
+            case .media:
+                    .init(onlyMedia: true, excludeReplies: true, excludeReblogs: true, pinned: false, minID: nil, maxID: nil)
+            case .reblog:
+                    .init(onlyMedia: false, excludeReplies: true, excludeReblogs: false, pinned: false, minID: nil, maxID: nil)
+            }
         }
     }
 }

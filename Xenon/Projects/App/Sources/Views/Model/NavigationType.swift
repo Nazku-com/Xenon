@@ -11,6 +11,5 @@ import FediverseFeature
 enum NavigationType: Hashable {
     
     case userAccountInfo(FediverseAccountEntity)
-    case userHandle(String)
     case login
 }

@@ -13,7 +13,7 @@ final class FediverseProfileViewModel: FetchableModelType {
     
     let oAuthData: OauthData
     let handle: String
-    @Published var fediverseAccountData: FediverseAccountEntity?
+    @Published var fediverseAccountData: FediverseAccountEntity
     @Published var isLoading: Bool = false
     @Published var followState: FollowState = .unknown
     
@@ -22,31 +22,28 @@ final class FediverseProfileViewModel: FetchableModelType {
         guard !isLoading else { return }
         isLoading = true
         followState = .loading
-        if let userInfo = await oAuthData.userInfo(handle: handle) {
-            fediverseAccountData = userInfo
-            let result = await oAuthData.relationships(id: userInfo.id)
-            switch result {
-            case .success(let relationships):
-                guard let relationship = relationships.first else {
-                    followState = .unknown
-                    return
-                }
-                updateFollowState(with: relationship)
-            case .failure(let error):
+        let result = await oAuthData.relationships(id: fediverseAccountData.id)
+        switch result {
+        case .success(let relationships):
+            guard let relationship = relationships.first else {
                 followState = .unknown
-                print(error)
+                return
             }
+            updateFollowState(with: relationship)
+        case .failure(let error):
+            followState = .unknown
+            print(error)
         }
         isLoading = false
     }
     
     @MainActor
     public func unfollowUser() async {
-        guard !isLoading,
-              let userId = fediverseAccountData?.id
+        guard !isLoading
         else {
             return
         }
+        let userId = fediverseAccountData.id
         isLoading = true
         followState = .loading
         
@@ -64,11 +61,11 @@ final class FediverseProfileViewModel: FetchableModelType {
     
     @MainActor
     public func followUser() async {
-        guard !isLoading,
-              let userId = fediverseAccountData?.id
+        guard !isLoading
         else {
             return
         }
+        let userId = fediverseAccountData.id
         isLoading = true
         followState = .loading
         
@@ -94,15 +91,6 @@ final class FediverseProfileViewModel: FetchableModelType {
                 followState = .notFollowing
             }
         }
-    }
-    
-    init(
-        oAuthData: OauthData,
-        handle: String
-    ) {
-        self.oAuthData = oAuthData
-        self.handle = handle
-        self.fediverseAccountData = nil
     }
     
     init(
