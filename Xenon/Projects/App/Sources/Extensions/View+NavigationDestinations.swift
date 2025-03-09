@@ -71,8 +71,6 @@ extension View {
         switch type {
         case .userAccountInfo(let fediverseAccountEntity):
             FediverseProfileView(model: .init(oAuthData: oAuthData, fediverseAccountData: fediverseAccountEntity))
-        case .userHandle(let handle):
-            FediverseProfileView(model: .init(oAuthData: oAuthData, handle: handle))
         case .login:
             LoginView(model: .init())
                 .onAppear {
@@ -86,8 +84,8 @@ extension View {
     @ViewBuilder
     private func destinationView(from urlType: URLHandler.URLType, oAuthData: OauthData) -> some View {
         switch urlType {
-        case .handle(let handle):
-            FediverseProfileView(model: .init(oAuthData: oAuthData, handle: handle))
+        case .handle(let account):
+            FediverseProfileView(model: .init(oAuthData: oAuthData, fediverseAccountData: account))
         case .hashtag(let tag):
             StaggeredGridView(model: FediverseStaggeredGridViewModel(
                 numberOfRows: GridRowNumerManager.shared.numberOfRows,

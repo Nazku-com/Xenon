@@ -12,7 +12,6 @@ let project = Project.module(
 ],
     dependencies: [
         ModulePaths.feature(.NetworkingFeature).dependency,
-        .external(name: "Alamofire"),
         .external(name: "SDWebImage"),
         .external(name: "Neumorphic"),
         .external(name: "Kingfisher"),

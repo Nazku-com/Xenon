@@ -53,6 +53,20 @@ public struct ContentView: View {
             homeRouterPath.path = .init()
             messageRouterPath.path = .init()
         }
+        .environment(\.openURL, OpenURLAction { url in
+            Task { @MainActor in
+                AppDelegate.instance.showLoading(true)
+                let destination = await URLHandler.shared.checkDestination(url)
+                if model.selectedTab == MainTab.home.rawValue {
+                    homeRouterPath.path.append(destination)
+                } else {
+                    messageRouterPath.path.append(destination)
+                }
+                AppDelegate.instance.showLoading(false)
+            }
+            return .handled
+        })
+        .onOpenURL { _ in }
     }
     
     @ViewBuilder

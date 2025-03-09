@@ -50,12 +50,6 @@ struct MainView: View {
             .background(Color.Neumorphic.main)
             .NavigationDestinations(for: $routerPath)
         }
-        .environment(\.openURL, OpenURLAction { url in
-            let destination = URLHandler.shared.checkDestination(url)
-            routerPath.path.append(destination)
-            return .handled
-        })
-        .onOpenURL { _ in }
     }
 }
 
