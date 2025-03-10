@@ -20,12 +20,3 @@ final class ImagePreviewManager {
         }
     }
 }
-
-extension UIApplication {
-    
-    var firstKeyWindow: UIWindow? {
-        let allScenes = UIApplication.shared.connectedScenes
-        let scene = allScenes.first { $0.activationState == .foregroundActive }
-        return (scene as? UIWindowScene)?.keyWindow
-    }
-}

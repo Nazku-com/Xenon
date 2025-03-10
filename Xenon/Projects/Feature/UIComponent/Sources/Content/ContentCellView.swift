@@ -147,6 +147,14 @@ public struct ContentCellView<Buttons: View, Content: ContentType>: View {
                             height: 150,
                             aspect: mediaAttachment.aspect
                         )
+                    case .video:
+                        VideoPreviewView(
+                            url: mediaAttachment.url,
+                            previewURL: mediaAttachment.previewURL,
+                            blurhash: mediaAttachment.blurhash,
+                            height: 150,
+                            aspect: mediaAttachment.aspect
+                        )
                     default:
                         Text("Unsupported media attachment type") // TODO: -
                             .padding(16)
