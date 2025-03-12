@@ -40,8 +40,23 @@ struct FollowingListView: View {
         }
         .scrollContentBackground(.hidden)
         .listStyle(.plain)
+        .refreshable {
+            Task {
+                await manager.fetch(contentType: contentType)
+            }
+        }
         .task {
-            await manager.fetch(contentType: contentType)
+            let numberOfContents: Int = {
+                switch contentType {
+                case .following:
+                    manager.followingList.count
+                case .follower:
+                    manager.followerList.count
+                }
+            }()
+            if numberOfContents == 0 {
+                await manager.fetch(contentType: contentType)
+            }
         }
     }
     
