@@ -32,6 +32,17 @@ struct FediverseAccountDetailView: View {
                         routerPath.path.append(Notification(name: .NeedNavigationNotification, object: content)) // TODO: -
                     }
                 }
+                if model.isLoading {
+                    ProgressView()
+                } else {
+                    Button {
+                        Task {
+                            await model.fetch(fromBottom: true)
+                        }
+                    } label: {
+                        Text("load more")
+                    }
+                }
             } else if !model.didFetched {
                 ProgressView()
                     .frame(height: 80)

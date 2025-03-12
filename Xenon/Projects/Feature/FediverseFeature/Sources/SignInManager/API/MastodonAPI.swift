@@ -15,8 +15,8 @@ public struct AccountStatusData {
     let excludeReplies: Bool
     let excludeReblogs: Bool
     let pinned: Bool
-    let minID: String?
-    let maxID: String?
+    var minID: String?
+    var maxID: String?
 }
 
 public enum MastodonAPI {
