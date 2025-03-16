@@ -41,6 +41,9 @@ extension FediverseResponseEntity: StaggeredGridContentType {
             } label: {
                 Text("like")
             }
+            if let url {
+                ShareLink(item: url)
+            }
         }
     }
     
