@@ -155,6 +155,13 @@ public struct ContentCellView<Buttons: View, Content: ContentType>: View {
                             height: 150,
                             aspect: mediaAttachment.aspect
                         )
+                    case .gifv:
+                        if let url = mediaAttachment.url {
+                            GifPlayer(url: url, height: 150)
+                                .frame(height: 150)
+                                .frame(minWidth: 1)
+                                .frame(maxWidth: .infinity)
+                        }
                     default:
                         Text("Unsupported media attachment type") // TODO: -
                             .padding(16)
