@@ -11,4 +11,5 @@ import UIComponent
 final class ContentViewModel: ObservableObject {
     
     @Published var selectedTab: String = MainTab.home.rawValue
+    @Published var isSheetPresented: Bool = false
 }

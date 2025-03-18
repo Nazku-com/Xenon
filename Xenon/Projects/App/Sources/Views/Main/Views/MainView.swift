@@ -48,7 +48,33 @@ struct MainView: View {
                 .tabViewStyle(.page(indexDisplayMode: .never))
             }
             .background(Color.Neumorphic.main)
-            .NavigationDestinations(for: $routerPath)
+            .onAppear {
+                let numberOfPath = routerPath.path.count
+                SideBarViewModel.shared.sideBarOpenablePublisher.send(numberOfPath == 0)
+            }
+            .onChange(of: routerPath.path.count, { _, newValue in
+                SideBarViewModel.shared.sideBarOpenablePublisher.send(newValue == 0)
+            })
+            .navigationDestination(for: Notification.self) { notification in
+                if let oAuthData = OAuthDataManager.shared.currentOAuthData {
+                    destinationView(from: notification, oAuthData: oAuthData)
+                        .environment(routerPath)
+                        .onAppear {
+                            let numberOfPath = routerPath.path.count
+                            SideBarViewModel.shared.sideBarOpenablePublisher.send(numberOfPath == 0)
+                        }
+                }
+            }
+            .navigationDestination(for: NavigationType.self) { notification in
+                if let oAuthData = OAuthDataManager.shared.currentOAuthData {
+                    destinationView(from: notification, oAuthData: oAuthData)
+                        .environment(routerPath)
+                        .onAppear {
+                            let numberOfPath = routerPath.path.count
+                            SideBarViewModel.shared.sideBarOpenablePublisher.send(numberOfPath == 0)
+                        }
+                }
+            }
         }
     }
 }

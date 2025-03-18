@@ -12,4 +12,5 @@ enum NavigationType: Hashable {
     
     case userAccountInfo(FediverseAccountEntity)
     case login
+    case url(URLHandler.URLType)
 }
