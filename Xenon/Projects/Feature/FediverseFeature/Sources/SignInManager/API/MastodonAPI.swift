@@ -40,6 +40,7 @@ public enum MastodonAPI {
     case boost(from: URL, token: OauthTokenEntity, id: String)
     case unboost(from: URL, token: OauthTokenEntity, id: String)
     case post(from: URL, token: OauthTokenEntity, content: String, visibility: FediverseResponseEntity.Visibility)
+    case customEmojis(from: URL, token: OauthTokenEntity)
 }
 
 @available(macOS 13.3, *)
@@ -52,7 +53,8 @@ extension MastodonAPI: NetworkingAPIType {
                 .unFavorite(let url, _, _), .lookup(let url, _, _), .context(let url, _, _),
                 .notifications(let url, _, _, _), .conversations(let url, _),
                 .relationships(let url, _, _), .follow(let url, _, _), .unfollow(let url, _, _),
-                .followers(let url, _, _), .following(let url, _, _), .boost(let url, _, _), .unboost(let url, _, _), .post(let url, _, _, _):
+                .followers(let url, _, _), .following(let url, _, _), .boost(let url, _, _), .unboost(let url, _, _),
+                .post(let url, _, _, _), .customEmojis(let url, _):
             return url
         }
     }
@@ -97,13 +99,16 @@ extension MastodonAPI: NetworkingAPIType {
             return "/api/v1/statuses/\(id)/unreblog"
         case .post:
             return "/api/v1/statuses"
+        case .customEmojis:
+            return "/api/v1/custom_emojis"
         }
     }
     
     public var method: Alamofire.HTTPMethod {
         switch self {
         case .checkUserInfo, .timeline, .accountStatus, .lookup, .context,
-                .notifications, .conversations, .relationships, .followers, .following:
+                .notifications, .conversations, .relationships, .followers,
+                .following, .customEmojis:
             return .get
         case .registerApp, .createToken, .setFavorite, .unFavorite, .follow, .unfollow,
                 .boost, .unboost, .post:
@@ -123,7 +128,8 @@ extension MastodonAPI: NetworkingAPIType {
                 .context(_, let token, _), .notifications(_, let token, _, _),
                 .conversations(_, let token), .relationships(_, let token, _),
                 .follow(_, let token, _), .unfollow(_, let token, _),.followers(_, let token, _),
-                .following(_, let token, _), .boost(_, let token, _), .unboost(_, let token, _), .post(_, let token, _, _):
+                .following(_, let token, _), .boost(_, let token, _), .unboost(_, let token, _),
+                .post(_, let token, _, _), .customEmojis(_, let token):
             return HTTPHeaders([
                 "Content-Type": "application/json",
                 "Authorization": "Bearer \(token.accessToken)"
