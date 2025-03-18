@@ -26,8 +26,7 @@ public struct ContentView: View {
                         model.selectedTab = buttonType.rawValue
                         return
                     case .plus:
-                        NavigationBarViewModel.shared.isAddNoteBarViewShown = true
-                        return
+                        model.isSheetPresented = true
                     }
                 }
             }
@@ -58,15 +57,18 @@ public struct ContentView: View {
                 AppDelegate.instance.showLoading(true)
                 let destination = await URLHandler.shared.checkDestination(url)
                 if model.selectedTab == MainTab.home.rawValue {
-                    homeRouterPath.path.append(destination)
+                    homeRouterPath.path.append(NavigationType.url(destination))
                 } else {
-                    messageRouterPath.path.append(destination)
+                    messageRouterPath.path.append(NavigationType.url(destination))
                 }
                 AppDelegate.instance.showLoading(false)
             }
             return .handled
         })
         .onOpenURL { _ in }
+        .sheet(isPresented: $model.isSheetPresented) {
+            AddNoteBarView(isPresented: $model.isSheetPresented)
+        }
     }
     
     @ViewBuilder
