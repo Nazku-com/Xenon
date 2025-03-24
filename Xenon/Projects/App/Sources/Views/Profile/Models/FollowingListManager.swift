@@ -12,10 +12,29 @@ final class FollowingListManager: ObservableObject {
     
     @Published var followingList: [FediverseAccountEntity] = []
     @Published var followerList: [FediverseAccountEntity] = []
+    @Published var followRequestList: [FediverseAccountEntity] = []
+    @Published var RequestingIDs: [String] = []
     
     @Published var isLoading: Bool = false {
         didSet {
             AppDelegate.instance.showLoading(isLoading)
+        }
+    }
+    
+    @MainActor
+    func acceptFollow(id: String) async {
+        defer {
+            RequestingIDs.removeAll(where: { $0 == id })
+        }
+        RequestingIDs.append(id)
+        let result = await OAuthDataManager.shared.currentOAuthData?.acceptFollow(id: id)
+        switch result {
+        case .success:
+            guard let follower = followRequestList.first(where: { $0.id == id }) else { return }
+            followRequestList.removeAll(where: { $0 == follower })
+            followerList.append(follower)
+        case .failure, .none:
+            return
         }
     }
     
@@ -33,8 +52,15 @@ final class FollowingListManager: ObservableObject {
                 print("error")
             }
         case .follower:
-            let result = await OAuthDataManager.shared.currentOAuthData?.followers(id: userID)
-            switch result {
+            async let result = OAuthDataManager.shared.currentOAuthData?.followers(id: userID)
+            async let followRequestResult = OAuthDataManager.shared.currentOAuthData?.followRequest()
+            switch await followRequestResult {
+            case .success(let success):
+                followRequestList = success
+            case .failure, .none:
+                print("error")
+            }
+            switch await result {
             case .success(let success):
                 followerList = success
             case .failure, .none:

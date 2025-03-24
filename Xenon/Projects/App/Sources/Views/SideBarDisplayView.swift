@@ -180,6 +180,19 @@ struct SideBarDisplayView: View {
         .background {
             NeumorphicBackgroundView(isInnerShadowEnabled: true, shape: Capsule())
         }
+        .overlay(alignment: .topTrailing) {
+            if model.badgeCount > 0 {
+                Circle()
+                    .fill(.red)
+                    .frame(width: 12)
+                    .shadow(radius: 8)
+            }
+        }
+        .onTapGesture {
+            if let id = oAuthData.user?.id {
+                NotificationCenter.default.post(name: .NeedNavigationNotification, object: FollowingListView.Initializer(id: id, contentType: .follower))
+            }
+        }
     }
     
     @ViewBuilder

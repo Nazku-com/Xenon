@@ -33,6 +33,10 @@ struct FollowingListView: View {
     @ViewBuilder
     private func accountListView(_ contentType: ContentType) -> some View {
         List {
+            ForEach(manager.followRequestList) { account in
+                accountCell(user: account, isFollowRequested: true)
+                    .listRowBackground(Color.clear)
+            }
             ForEach(contentType == .follower ? manager.followerList : manager.followingList) { account in
                 accountCell(user: account)
                     .listRowBackground(Color.clear)
@@ -61,7 +65,7 @@ struct FollowingListView: View {
     }
     
     @ViewBuilder
-    private func accountCell(user: FediverseAccountEntity) -> some View {
+    private func accountCell(user: FediverseAccountEntity, isFollowRequested: Bool = false) -> some View {
         HStack(alignment: .top, spacing: 12) {
             KFImageView(
                 user.avatar,
@@ -81,9 +85,26 @@ struct FollowingListView: View {
                     .foregroundStyle(.secondary)
                     .padding(.bottom, 8)
             }
+            Spacer()
         }
         .onTapGesture {
             routerPath.path.append(NavigationType.userAccountInfo(user))
+        }
+        .overlay(alignment: .trailing) {
+            if isFollowRequested {
+                Button {
+                    Task {
+                        await manager.acceptFollow(id: user.id)
+                    }
+                } label: {
+                    if manager.RequestingIDs.contains(user.id) {
+                        ProgressView()
+                    } else {
+                        Text("accept")
+                    }
+                }
+                .buttonStyle(.bordered)
+            }
         }
     }
     

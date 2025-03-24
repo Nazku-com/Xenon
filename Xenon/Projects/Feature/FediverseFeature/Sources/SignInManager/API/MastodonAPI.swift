@@ -41,6 +41,8 @@ public enum MastodonAPI {
     case unboost(from: URL, token: OauthTokenEntity, id: String)
     case post(from: URL, token: OauthTokenEntity, content: String, visibility: FediverseResponseEntity.Visibility)
     case customEmojis(from: URL, token: OauthTokenEntity)
+    case followRequest(from: URL, token: OauthTokenEntity)
+    case acceptFollow(from: URL, token: OauthTokenEntity, id: String)
 }
 
 @available(macOS 13.3, *)
@@ -54,7 +56,7 @@ extension MastodonAPI: NetworkingAPIType {
                 .notifications(let url, _, _, _), .conversations(let url, _),
                 .relationships(let url, _, _), .follow(let url, _, _), .unfollow(let url, _, _),
                 .followers(let url, _, _), .following(let url, _, _), .boost(let url, _, _), .unboost(let url, _, _),
-                .post(let url, _, _, _), .customEmojis(let url, _):
+                .post(let url, _, _, _), .customEmojis(let url, _), .followRequest(let url, _), .acceptFollow(let url, _, _):
             return url
         }
     }
@@ -101,6 +103,10 @@ extension MastodonAPI: NetworkingAPIType {
             return "/api/v1/statuses"
         case .customEmojis:
             return "/api/v1/custom_emojis"
+        case .followRequest:
+            return "/api/v1/follow_requests"
+        case .acceptFollow(_, _, let id):
+            return "/api/v1/follow_requests/\(id)/authorize"
         }
     }
     
@@ -108,10 +114,10 @@ extension MastodonAPI: NetworkingAPIType {
         switch self {
         case .checkUserInfo, .timeline, .accountStatus, .lookup, .context,
                 .notifications, .conversations, .relationships, .followers,
-                .following, .customEmojis:
+                .following, .customEmojis, .followRequest:
             return .get
         case .registerApp, .createToken, .setFavorite, .unFavorite, .follow, .unfollow,
-                .boost, .unboost, .post:
+                .boost, .unboost, .post, .acceptFollow:
             return .post
         }
     }
@@ -129,7 +135,8 @@ extension MastodonAPI: NetworkingAPIType {
                 .conversations(_, let token), .relationships(_, let token, _),
                 .follow(_, let token, _), .unfollow(_, let token, _),.followers(_, let token, _),
                 .following(_, let token, _), .boost(_, let token, _), .unboost(_, let token, _),
-                .post(_, let token, _, _), .customEmojis(_, let token):
+                .post(_, let token, _, _), .customEmojis(_, let token), .followRequest(_, let token),
+                .acceptFollow(_, let token, _):
             return HTTPHeaders([
                 "Content-Type": "application/json",
                 "Authorization": "Bearer \(token.accessToken)"
