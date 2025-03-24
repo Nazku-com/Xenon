@@ -23,6 +23,14 @@ public struct ContentView: View {
                 .onReceive(navigationBarModel.buttonTapPublisher) { buttonType in
                     switch buttonType {
                     case .home, .search, .message:
+                        if model.selectedTab == buttonType.rawValue {
+                            if buttonType == .home {
+                                homeRouterPath.path = .init()
+                            } else {
+                                messageRouterPath.path = .init()
+                            }
+                            return
+                        }
                         model.selectedTab = buttonType.rawValue
                         return
                     case .plus:
