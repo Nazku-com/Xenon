@@ -39,7 +39,8 @@ public enum MastodonAPI {
     case following(from: URL, token: OauthTokenEntity, id: String) // TODO: - Pagination
     case boost(from: URL, token: OauthTokenEntity, id: String)
     case unboost(from: URL, token: OauthTokenEntity, id: String)
-    case post(from: URL, token: OauthTokenEntity, content: String, visibility: FediverseResponseEntity.Visibility)
+    case media(from: URL, token: OauthTokenEntity, content: NetworkingFeature.MultipartFormData)
+    case post(from: URL, token: OauthTokenEntity, content: String, mediaIDs: [String], visibility: FediverseResponseEntity.Visibility)
     case customEmojis(from: URL, token: OauthTokenEntity)
     case followRequest(from: URL, token: OauthTokenEntity)
     case acceptFollow(from: URL, token: OauthTokenEntity, id: String)
@@ -54,9 +55,9 @@ extension MastodonAPI: NetworkingAPIType {
                 .timeline(let url, _, _, _, _), .accountStatus(let url, _, _, _), .setFavorite(let url, _, _),
                 .unFavorite(let url, _, _), .lookup(let url, _, _), .context(let url, _, _),
                 .notifications(let url, _, _, _), .conversations(let url, _),
-                .relationships(let url, _, _), .follow(let url, _, _), .unfollow(let url, _, _),
+                .relationships(let url, _, _), .follow(let url, _, _), .unfollow(let url, _, _), .media(let url,_ , _),
                 .followers(let url, _, _), .following(let url, _, _), .boost(let url, _, _), .unboost(let url, _, _),
-                .post(let url, _, _, _), .customEmojis(let url, _), .followRequest(let url, _), .acceptFollow(let url, _, _):
+                .post(let url, _, _ , _, _), .customEmojis(let url, _), .followRequest(let url, _), .acceptFollow(let url, _, _):
             return url
         }
     }
@@ -99,6 +100,8 @@ extension MastodonAPI: NetworkingAPIType {
             return "/api/v1/statuses/\(id)/reblog"
         case .unboost(_, _, let id):
             return "/api/v1/statuses/\(id)/unreblog"
+        case .media:
+            return "/api/v2/media"
         case .post:
             return "/api/v1/statuses"
         case .customEmojis:
@@ -117,7 +120,7 @@ extension MastodonAPI: NetworkingAPIType {
                 .following, .customEmojis, .followRequest:
             return .get
         case .registerApp, .createToken, .setFavorite, .unFavorite, .follow, .unfollow,
-                .boost, .unboost, .post, .acceptFollow:
+                .boost, .unboost, .media, .post, .acceptFollow:
             return .post
         }
     }
@@ -135,10 +138,15 @@ extension MastodonAPI: NetworkingAPIType {
                 .conversations(_, let token), .relationships(_, let token, _),
                 .follow(_, let token, _), .unfollow(_, let token, _),.followers(_, let token, _),
                 .following(_, let token, _), .boost(_, let token, _), .unboost(_, let token, _),
-                .post(_, let token, _, _), .customEmojis(_, let token), .followRequest(_, let token),
+                .post(_, let token, _, _, _), .customEmojis(_, let token), .followRequest(_, let token),
                 .acceptFollow(_, let token, _):
             return HTTPHeaders([
                 "Content-Type": "application/json",
+                "Authorization": "Bearer \(token.accessToken)"
+            ])
+        case .media(_, let token, _):
+            return HTTPHeaders([
+                "Content-Type": "multipart/form-data",
                 "Authorization": "Bearer \(token.accessToken)"
             ])
         }
@@ -162,11 +170,11 @@ extension MastodonAPI: NetworkingAPIType {
                 "redirect_uri": appInfo.scheme,
                 "scope": "read write follow push"
             ]
-        case .post(_, _, let content, let visibility):
+        case .post(_, _, let content, let mediaIDs, let visibility):
             return [
                 "language": "ko", // TODO: -
-                "media_attributes": [], // TODO: -
-                "media_ids": [],
+                "media_attributes": [],
+                "media_ids": mediaIDs,
                 "status": content,
                 "visibility": visibility.rawValue
             ]
@@ -234,6 +242,15 @@ extension MastodonAPI: NetworkingAPIType {
                 "id": id
             ]
             
+        default:
+            return nil
+        }
+    }
+    
+    public var uploadData: NetworkingFeature.MultipartFormData? {
+        switch self {
+        case .media(_, _, let content):
+            return content
         default:
             return nil
         }

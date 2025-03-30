@@ -17,7 +17,11 @@ public final class NetworkingService: NetworkingServiceType {
     public func request<T: NetworkingDTOType>(api: NetworkingAPIType, dtoType: T.Type) async ->  Result<T.EntityType, NetworkingServiceError> {
         let data: Data?
         if api.method == .post {
-            data = await requestWithBody(api: api)
+            if api.headers?["Content-Type"] == "multipart/form-data" {
+                data = await upload(api: api)
+            } else {
+                data = await requestWithBody(api: api)
+            }
         } else {
             data = await request(api: api)
         }
@@ -37,8 +41,13 @@ public final class NetworkingService: NetworkingServiceType {
     @BackgroundActor
     public func request(api: NetworkingAPIType) async -> Data? {
         if api.method == .post {
-            let result = await requestWithBody(api: api)
-            return result
+            if api.headers?["Content-Type"] == "multipart/form-data" {
+                let result = await upload(api: api)
+                return result
+            } else {
+                let result = await requestWithBody(api: api)
+                return result
+            }
         }
         let result = await afSession.request(
             api.route,
@@ -52,6 +61,29 @@ public final class NetworkingService: NetworkingServiceType {
             return success
         case .failure:
             return nil
+        }
+    }
+    
+    
+    @BackgroundActor
+    private func upload(api: NetworkingAPIType) async ->  Data? {
+        var request = URLRequest(url: api.route)
+        request.httpMethod = api.method.rawValue
+        request.headers = api.headers ?? []
+        return await withCheckedContinuation { continuation in
+            afSession.upload(multipartFormData: { multipartFormData in
+                if let bodyData = api.bodyData {
+                    bodyData.forEach{ key, value in
+                        multipartFormData.append("\(value)".data(using: .utf8)!, withName: key)
+                    }
+                }
+                if let content  = api.uploadData {
+                    multipartFormData.append(content.data, withName: content.fileName, fileName: content.fileName, mimeType: content.mimeType)
+                }
+            }, to: api.route, method: api.method, headers: api.headers)
+            .response { response in
+                continuation.resume(returning: response.data)
+            }
         }
     }
     

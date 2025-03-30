@@ -213,6 +213,13 @@ extension MisskeyAPI: NetworkingAPIType {
         }
     }
     
+    public var uploadData: NetworkingFeature.MultipartFormData? {
+        switch self {
+        default:
+            return nil
+        }
+    }
+    
     public var encoding: any Alamofire.ParameterEncoding {
         switch self {
         default:
