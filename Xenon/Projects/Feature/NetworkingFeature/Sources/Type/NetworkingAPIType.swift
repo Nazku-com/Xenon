@@ -9,6 +9,19 @@
 import Foundation
 import Alamofire
 
+public struct MultipartFormData {
+    
+    let fileName: String
+    let mimeType: String
+    let data: Data
+    
+    public init(fileName: String, mimeType: String, data: Data) {
+        self.fileName = fileName
+        self.mimeType = mimeType
+        self.data = data
+    }
+}
+
 public protocol NetworkingAPIType {
     
     var baseURL: URL { get }
@@ -20,6 +33,8 @@ public protocol NetworkingAPIType {
     var headers: HTTPHeaders? { get }
     
     var bodyData: Parameters? { get }
+    
+    var uploadData: MultipartFormData? { get }
     
     var parameters: Parameters? { get }
     

@@ -56,6 +56,13 @@ extension NodeInfoAPI: NetworkingAPIType {
         }
     }
     
+    public var uploadData: NetworkingFeature.MultipartFormData? {
+        switch self {
+        default:
+            return nil
+        }
+    }
+    
     public var parameters: Alamofire.Parameters? {
         switch self {
         default:
