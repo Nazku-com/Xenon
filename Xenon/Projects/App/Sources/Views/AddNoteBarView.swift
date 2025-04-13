@@ -14,13 +14,22 @@ final class AddNoteBarViewModel: ObservableObject {
     
     @Published var text: String = ""
     @Published var customEmojis = [String: [CustomEmojiEntity]]()
-    @Published var selectedImages = [UIImage]()
+    @Published var selectedImages = [UIImage]() {
+        didSet {
+            print(selectedImages.count)
+        }
+    }
     @Published var selectedContent: AddNoteBarView.Content? = nil {
         didSet {
             isSheetPresented = selectedContent?.contentPresentType == .sheet
         }
     }
     @Published var isSheetPresented: Bool = false
+    @Published var isLoading: Bool = false {
+        didSet {
+            AppDelegate.instance.showLoading(isLoading)
+        }
+    }
 }
 
 struct AddNoteBarView: View {
@@ -170,7 +179,7 @@ struct AddNoteBarView: View {
                 }
             }
         case .photos:
-            ImagePicker(pickerResult: $model.selectedImages, isPresented: $model.isSheetPresented)
+            ImagePicker(pickerResult: $model.selectedImages, isLoading: $model.isLoading, isPresented: $model.isSheetPresented)
         default:
             EmptyView()
         }
