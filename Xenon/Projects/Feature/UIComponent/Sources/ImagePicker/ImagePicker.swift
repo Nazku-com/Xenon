@@ -11,6 +11,7 @@ import PhotosUI
 
 public struct ImagePicker: UIViewControllerRepresentable {
     @Binding var pickerResult: [UIImage]
+    @Binding var isLoading: Bool
     @Binding var isPresented: Bool
     
     public func makeUIViewController(context: Context) -> some UIViewController {
@@ -38,27 +39,35 @@ public struct ImagePicker: UIViewControllerRepresentable {
         
         public func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
             parent.pickerResult.removeAll()
-            
-            for image in results {
-                if image.itemProvider.canLoadObject(ofClass: UIImage.self) {
-                    image.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] newImage, error in
-                        if let error = error {
-                            print("Can't load image \(error.localizedDescription)")
-                        } else if let image = newImage as? UIImage {
-                            self?.parent.pickerResult.append(image)
-                        }
+            parent.isLoading = true
+            Task {
+                let findableResults = results.compactMap { $0.itemProvider.canLoadObject(ofClass: UIImage.self) ? $0 : nil }
+                var results: [UIImage] = []
+                for result in findableResults {
+                    let image = await loadImage(from: result)
+                    if let image {
+                        results.append(image)
                     }
-                } else {
-                    print("Can't load asset")
+                }
+                parent.pickerResult = results
+                parent.isLoading = false
+                parent.isPresented = false
+            }
+        }
+        
+        private func loadImage(from provider: PHPickerResult) async -> UIImage? {
+            await withCheckedContinuation { continuation in
+                provider.itemProvider.loadObject(ofClass: UIImage.self) { newImage, _ in
+                    let image = newImage as? UIImage
+                    continuation.resume(returning: image)
                 }
             }
-            
-            parent.isPresented = false
         }
     }
     
-    public init(pickerResult: Binding<[UIImage]>, isPresented: Binding<Bool>) {
+    public init(pickerResult: Binding<[UIImage]>, isLoading: Binding<Bool>, isPresented: Binding<Bool>) {
         _pickerResult = pickerResult
+        _isLoading = isLoading
         _isPresented = isPresented
     }
 }
