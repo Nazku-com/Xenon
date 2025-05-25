@@ -34,7 +34,16 @@ public extension OauthData {
             return data
             
         case .misskey:
-            let data = await NetworkingService().request(api: MisskeyAPI.timeline(from: url, token: token, of: type), dtoType: [MisskeyResponseDTO].self)
+            let data = await NetworkingService().request(
+                api: MisskeyAPI.timeline(
+                    from: url,
+                    token: token,
+                    of: type,
+                    sinceID: minID,
+                    untilID: maxID
+                ),
+                dtoType: [MisskeyResponseDTO].self
+            )
             
             return data
         }

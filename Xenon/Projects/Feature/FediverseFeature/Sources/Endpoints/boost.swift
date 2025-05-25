@@ -18,7 +18,8 @@ public extension OauthData {
             return result
             
         case .misskey:
-            return .failure(.networkError("not yet implement"))
+            let result = await NetworkingService().request(api: MisskeyAPI.boost(from: url, id: id, token: token), dtoType: MisskeyBoostDTO.self)
+            return result
         }
     }
     
@@ -30,5 +31,14 @@ public extension OauthData {
         case .misskey:
             return .failure(.networkError("not yet implement"))
         }
+    }
+}
+
+struct MisskeyBoostDTO: NetworkingDTOType {
+    
+    let createdNote: MisskeyResponseDTO
+    
+    func toEntity() -> FediverseResponseEntity {
+        createdNote.toEntity()
     }
 }
