@@ -14,23 +14,30 @@ public enum MisskeyAPI {
     
     case createSession(from: URL, session: String, appInfo: AppInfoType)
     case createToken(from: URL, session: String)
-    case timeline(from: URL, token: OauthTokenEntity, of: TimelineType)
+    case timeline(
+        from: URL,
+        token: OauthTokenEntity,
+        of: TimelineType,
+        sinceID: String?,
+        untilID: String?
+    )
     case createReaction(from: URL, token: OauthTokenEntity, noteId: String, reaction: String)
     case deleteReaction(from: URL, token: OauthTokenEntity, noteId: String)
     case singleNote(from: URL, token: OauthTokenEntity, noteId: String)
     case userShow(from: URL, token: OauthTokenEntity, userName: String, host: String?)
     case replies(from: URL, token: OauthTokenEntity, noteId: String)
     case revokeToken(from: URL, token: OauthTokenEntity)
+    case boost(from: URL, id: String, token: OauthTokenEntity)
 }
 
 extension MisskeyAPI: NetworkingAPIType {
     public var baseURL: URL {
         switch self {
         case .createToken(let url, _), .createSession(let url, _, _),
-                .timeline(let url, _, _), .createReaction(let url, _, _, _),
+                .timeline(let url, _, _, _, _), .createReaction(let url, _, _, _),
                 .deleteReaction(let url, _, _), .singleNote(let url, _, _),
                 .userShow(let url, _, _, _), .replies(from: let url, _, _),
-                .revokeToken(let url, _):
+                .revokeToken(let url, _), .boost(let url, _, _):
             return url
         }
     }
@@ -41,7 +48,7 @@ extension MisskeyAPI: NetworkingAPIType {
             return "/api/miauth/\(session)/check"
         case .createSession(_, let session, _):
             return "/miauth/\(session)"
-        case .timeline(_, _, let type):
+        case .timeline(_, _, let type, _, _):
             switch type {
             case .home:
                 return "/api/notes/timeline"
@@ -66,8 +73,8 @@ extension MisskeyAPI: NetworkingAPIType {
             return "/api/notes/replies"
         case .revokeToken:
             return "/api/i/revoke-token"
-//        case .createNote:
-//            return "/api/notes/create"
+        case .boost:
+            return "/api/notes/create"
         }
     }
     
@@ -75,7 +82,7 @@ extension MisskeyAPI: NetworkingAPIType {
         switch self {
         case .createToken, .timeline, .createReaction,
                 .deleteReaction, .singleNote, .userShow,
-                .replies, .revokeToken:
+                .replies, .revokeToken, .boost:
             return .post
         case .createSession:
             return .get
@@ -84,9 +91,10 @@ extension MisskeyAPI: NetworkingAPIType {
     
     public var headers: Alamofire.HTTPHeaders? {
         switch self {
-        case .timeline(_, let token, _), .createReaction(_, let token, _, _),
+        case .timeline(_, let token, _, _, _), .createReaction(_, let token, _, _),
                 .deleteReaction(_, let token, _), .singleNote(_, let token, _),
-                .userShow(_, let token, _, _), .replies(_, let token, _):
+                .userShow(_, let token, _, _), .replies(_, let token, _),
+                .boost(_, _, let token):
             return HTTPHeaders([
                 "Authorization": "Bearer \(token.accessToken)",
                 "Content-Type": "application/json"
@@ -100,8 +108,8 @@ extension MisskeyAPI: NetworkingAPIType {
     
     public var bodyData: Alamofire.Parameters? {
         switch self {
-        case .timeline:
-            return [
+        case .timeline(_, _, _, let sinceID, let untilID):
+            var body: [String: Any] = [
                 "limit": 10,
                 "allowPartial": false,
                 "includeMyRenotes": true,
@@ -110,6 +118,13 @@ extension MisskeyAPI: NetworkingAPIType {
                 "withFiles": false,
                 "withRenotes": true
             ]
+            if let sinceID {
+                body["sinceId"] = sinceID
+            }
+            if let untilID {
+                body["untilId"] = untilID
+            }
+            return body
         case .createReaction(_, _, let noteId, let reaction):
             return [
                 "noteId": noteId,
@@ -138,20 +153,10 @@ extension MisskeyAPI: NetworkingAPIType {
             return [
                 "tokenId": token.accessToken
             ]
-//        case .createNote(_, _, let content):
-//            var noteContents = [String: Any]()
-//            noteContents["visibility"] = content.visibility
-//            noteContents["text"] = content.text
-//            if let cw = content.cw {
-//                noteContents["cw"] = cw
-//            }
-//            if let replyId = content.replyId {
-//                noteContents["replyId"] = replyId
-//            }
-//            if let renoteId = content.renoteId {
-//                noteContents["renoteId"] = renoteId
-//            }
-//            return  noteContents
+        case .boost(_, let id, _):
+            return [
+                "renoteId": id
+            ]
         default:
             return nil
         }

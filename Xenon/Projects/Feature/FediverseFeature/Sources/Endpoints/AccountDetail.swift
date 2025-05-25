@@ -11,7 +11,7 @@ import NetworkingFeature
 
 public extension OauthData {
     
-    func accountDetail(
+    func accountDetail( /// specific user's Contents
         id: String,
         contentType: ContentType,
         minID: String? = nil,
