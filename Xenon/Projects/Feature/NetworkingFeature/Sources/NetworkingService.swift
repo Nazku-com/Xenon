@@ -13,104 +13,92 @@ public final class NetworkingService: NetworkingServiceType {
     
     // MARK: - Interface
     
-    @MainActor
-    public func request<T: NetworkingDTOType>(api: NetworkingAPIType, dtoType: T.Type) async ->  Result<T.EntityType, NetworkingServiceError> {
-        let data: Data?
-        if api.method == .post {
-            if api.headers?["Content-Type"] == "multipart/form-data" {
-                data = await upload(api: api)
-            } else {
-                data = await requestWithBody(api: api)
-            }
-        } else {
-            data = await request(api: api)
-        }
-        guard let data else {
-            return .failure(.networkError("data is nil"))
-        }
-        
-        let result = handleResponse(data: data, dtoType: dtoType)
+    @BackgroundActor
+    public func request<T: NetworkingDTOType>(api: NetworkingAPIType, dtoType: T.Type) async -> Result<T.EntityType, NetworkingServiceError> {
+        let result = await request(api: api)
         switch result {
-        case .success(let value):
-            return .success(value.toEntity())
-        case .failure(let error):
+        case .success(let data):
+            do {
+                let result = try JSONDecoder().decode(T.self, from: data)
+                let entity = try result.toEntity()
+                return .success(entity)
+            } catch(let error) {
+                return .failure(.jsonParsingFailed(error))
+            }
+        case .failure(let failure):
+            return .failure(.asError(failure))
+        }
+    }
+    
+    @BackgroundActor
+    public func request(api: NetworkingAPIType) async -> Result<Data, Error> {
+        if api.method == .post,
+           api.headers["Content-Type"] == "multipart/form-data" {
+            return await upload(api: api)
+        }
+        var url = api.route
+        if !api.queryItems.isEmpty {
+            url.append(queryItems: api.queryItems)
+        }
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = api.method.rawValue
+        urlRequest.allHTTPHeaderFields = api.headers
+        if !api.body.isEmpty {
+            urlRequest.httpBody = try? JSONSerialization.data(withJSONObject: api.body, options: [])
+        }
+        do {
+            let (data, _) = try await session.data(for: urlRequest)
+            return .success(data)
+        } catch(let error) {
             return .failure(error)
         }
     }
     
     @BackgroundActor
-    public func request(api: NetworkingAPIType) async -> Data? {
-        if api.method == .post {
-            if api.headers?["Content-Type"] == "multipart/form-data" {
-                let result = await upload(api: api)
-                return result
-            } else {
-                let result = await requestWithBody(api: api)
-                return result
-            }
-        }
-        let result = await afSession.request(
-            api.route,
-            method: api.method,
-            parameters: api.parameters,
-            headers: api.headers
-        ).serializingData().result
+    private func upload(api: NetworkingAPIType) async -> Result<Data, Error> {
+        var request = URLRequest(url: api.route)
+        request.httpMethod = api.method.rawValue
+        request.allHTTPHeaderFields = api.headers
         
-        switch result {
-        case .success(let success):
-            return success
-        case .failure:
-            return nil
+        guard let uploadData = api.uploadData else {
+            return .failure(NetworkingServiceError.uploadDataNotFound)
+        }
+        
+        let boundary = UUID().uuidString
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        
+        var body = Data()
+        
+        for (key, value) in api.body {
+            body.append("--\(boundary)\r\n".data(using: .utf8)!)
+            body.append("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n".data(using: .utf8)!)
+            body.append("\(value)".data(using: .utf8)!)
+            body.append("\r\n".data(using: .utf8)!)
+        }
+        
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"\(uploadData.fileName)\"; filename=\"\(uploadData.fileName)\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: \(uploadData.mimeType)\r\n\r\n".data(using: .utf8)!)
+        body.append(uploadData.data)
+        body.append("\r\n".data(using: .utf8)!)
+        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+        
+        do {
+            let (data, _) = try await session.upload(for: request, from: body)
+            return .success(data)
+        } catch(let error) {
+            return .failure(error)
         }
     }
-    
-    
-    @BackgroundActor
-    private func upload(api: NetworkingAPIType) async ->  Data? {
-        var request = URLRequest(url: api.route)
-        request.httpMethod = api.method.rawValue
-        request.headers = api.headers ?? []
-        return await withCheckedContinuation { continuation in
-            afSession.upload(multipartFormData: { multipartFormData in
-                if let bodyData = api.bodyData {
-                    bodyData.forEach{ key, value in
-                        multipartFormData.append("\(value)".data(using: .utf8)!, withName: key)
-                    }
-                }
-                if let content  = api.uploadData {
-                    multipartFormData.append(content.data, withName: content.fileName, fileName: content.fileName, mimeType: content.mimeType)
-                }
-            }, to: api.route, method: api.method, headers: api.headers)
-            .response { response in
-                continuation.resume(returning: response.data)
-            }
-        }
-    }
-    
-    @BackgroundActor
-    private func requestWithBody(api: NetworkingAPIType) async -> Data? {
-        var request = URLRequest(url: api.route)
-        request.httpMethod = api.method.rawValue
-        request.headers = api.headers ?? []
-        request.httpBody = try? JSONSerialization.data(withJSONObject: api.bodyData ?? [], options: [])
-        return await withCheckedContinuation { continuation in
-            afSession.request(request)
-                .responseData { response in
-                    continuation.resume(returning: response.data)
-                }
-        }
-    }
-    
     
     // MARK: - Attribute
     
-    private let afSession: Alamofire.Session
-    
+    private let session: URLSessionProtocol
     
     // MARK: - Initialization
     
-    public init(afSession: Alamofire.Session = AF) {
-        self.afSession = afSession
+    public init(session: URLSessionProtocol = URLSession.shared) {
+        self.session = session
     }
     
     
@@ -121,7 +109,7 @@ public final class NetworkingService: NetworkingServiceType {
             let result = try JSONDecoder().decode(T.self, from: data)
             return .success(result)
         } catch (let error) {
-            return .failure(.jsonParsingFailed(error.localizedDescription))
+            return .failure(.jsonParsingFailed(error))
         }
     }
 }

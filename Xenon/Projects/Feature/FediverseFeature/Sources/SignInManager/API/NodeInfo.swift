@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import Alamofire
 import NetworkingFeature
 
 public enum NodeInfoAPI {
@@ -17,6 +16,7 @@ public enum NodeInfoAPI {
 }
 
 extension NodeInfoAPI: NetworkingAPIType {
+    
     public var baseURL: URL {
         switch self {
         case .nodeInfo(let url), .get(let url):
@@ -33,26 +33,26 @@ extension NodeInfoAPI: NetworkingAPIType {
         }
     }
     
-    public var method: Alamofire.HTTPMethod {
+    public var method: NetworkingFeature.HttpMethod {
         switch self {
         case .nodeInfo, .get:
             return .get
         }
     }
     
-    public var headers: Alamofire.HTTPHeaders? {
+    public var headers: [String : String] {
         switch self {
         default:
-            return HTTPHeaders([
+            return [
                 "Content-Type": "application/json"
-            ])
+            ]
         }
     }
     
-    public var bodyData: Alamofire.Parameters? {
+    public var body: [String : Any] {
         switch self {
         default:
-            return nil
+            return [:]
         }
     }
     
@@ -63,17 +63,10 @@ extension NodeInfoAPI: NetworkingAPIType {
         }
     }
     
-    public var parameters: Alamofire.Parameters? {
+    public var queryItems: [URLQueryItem] {
         switch self {
         default:
-            return nil
-        }
-    }
-    
-    public var encoding: any Alamofire.ParameterEncoding {
-        switch self {
-        default:
-            return URLEncoding.default
+            return []
         }
     }
 }

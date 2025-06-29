@@ -113,7 +113,7 @@ extension MastodonAPI: NetworkingAPIType {
         }
     }
     
-    public var method: Alamofire.HTTPMethod {
+    public var method: NetworkingFeature.HttpMethod {
         switch self {
         case .checkUserInfo, .timeline, .accountStatus, .lookup, .context,
                 .notifications, .conversations, .relationships, .followers,
@@ -125,12 +125,12 @@ extension MastodonAPI: NetworkingAPIType {
         }
     }
     
-    public var headers: Alamofire.HTTPHeaders? {
+    public var headers: [String : String]  {
         switch self {
         case .registerApp, .createToken:
-            return HTTPHeaders([
+            return [
                 "Content-Type": "application/json"
-            ])
+            ]
         case .checkUserInfo(_, let token), .timeline(_, let token, _, _, _),
                 .accountStatus(_, let token, _, _), .setFavorite(_, let token, _),
                 .unFavorite(_, let token, _), .lookup(_, let token, _),
@@ -140,19 +140,21 @@ extension MastodonAPI: NetworkingAPIType {
                 .following(_, let token, _), .boost(_, let token, _), .unboost(_, let token, _),
                 .post(_, let token, _, _, _), .customEmojis(_, let token), .followRequest(_, let token),
                 .acceptFollow(_, let token, _):
-            return HTTPHeaders([
+            return [
                 "Content-Type": "application/json",
                 "Authorization": "Bearer \(token.accessToken)"
-            ])
+            ]
         case .media(_, let token, _):
-            return HTTPHeaders([
+            return [
                 "Content-Type": "multipart/form-data",
                 "Authorization": "Bearer \(token.accessToken)"
-            ])
+            ]
+        default:
+            return [:]
         }
     }
     
-    public var bodyData: Alamofire.Parameters? {
+    public var body: [String : Any] {
         switch self {
         case .registerApp(_, let appInfo):
             return [
@@ -180,70 +182,70 @@ extension MastodonAPI: NetworkingAPIType {
             ]
             
         default:
-            return nil
+            return [:]
         }
     }
     
-    public var parameters: Alamofire.Parameters? {
+    public var queryItems: [URLQueryItem] {
         switch self {
         case .timeline(_, _, let type, let minID, let maxID):
-            var parameters: [String: Any] = [
-                "limit": 20
+            var parameters: [URLQueryItem] = [
+                .init(name: "limit", value: "20")
             ]
             if type == .home
                 || type == .local
                 || type == .global
                 || type == .hybrid
             {
-                parameters["local"] = (type == .home || type == .local || type == .hybrid)
-                parameters["remote"] = (type == .hybrid || type == .global)
+                parameters.append(.init(name: "local", value: "\((type == .home || type == .local || type == .hybrid))"))
+                parameters.append(.init(name: "remote", value: "\((type == .hybrid || type == .global))"))
             }
             if let minID {
-                parameters["min_id"] = minID
+                parameters.append(.init(name: "min_id", value: minID))
             }
             if let maxID {
-                parameters["max_id"] = maxID
+                parameters.append(.init(name: "max_id", value: maxID))
             }
             return parameters
             
         case .lookup(_, _, let handle):
             return [
-                "acct": handle
+                .init(name: "acct", value: handle)
             ]
         case .notifications(_, _, let minID, let maxID):
-            var parameters: [String: Any] = [
-                "limit": 30
+            var parameters: [URLQueryItem] = [
+                .init(name: "limit", value: "30")
             ]
             if let minID {
-                parameters["min_id"] = minID
+                parameters.append(.init(name: "min_id", value: minID))
             }
             if let maxID {
-                parameters["max_id"] = maxID
+                parameters.append(.init(name: "max_id", value: maxID))
             }
             return parameters
             
         case .accountStatus(_, _, _, let data):
-            var parameters: [String: Any] = [
-                "only_media": data.onlyMedia,
-                "exclude_replies": data.excludeReplies,
-                "exclude_reblogs": data.excludeReblogs,
-                "pinned": data.pinned
+            var parameters: [URLQueryItem] = [
+                .init(name: "only_media", value: "\(data.onlyMedia)"),
+                .init(name: "exclude_replies", value: "\(data.excludeReplies)"),
+                .init(name: "exclude_reblogs", value: "\(data.excludeReblogs)"),
+                .init(name: "pinned", value: "\(data.pinned)")
             ]
             if let minID = data.minID {
-                parameters["min_id"] = minID
+                parameters.append(.init(name: "min_id", value: minID))
             }
             if let maxID = data.maxID {
-                parameters["max_id"] = maxID
+                parameters.append(.init(name: "max_id", value: maxID))
             }
             return parameters
             
         case .relationships(_, _, let id):
             return [
-                "id": id
+                .init(name: "id", value: id)
             ]
             
         default:
-            return nil
+            return []
         }
     }
     

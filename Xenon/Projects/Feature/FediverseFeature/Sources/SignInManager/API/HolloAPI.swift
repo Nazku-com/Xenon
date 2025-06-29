@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import Alamofire
 import NetworkingFeature
 
 public enum HolloAPI {
@@ -32,45 +31,45 @@ extension HolloAPI: NetworkingAPIType {
         }
     }
     
-    public var method: Alamofire.HTTPMethod {
+    public var method: NetworkingFeature.HttpMethod {
         switch self {
         case .timeline:
             return .get
         }
     }
     
-    public var headers: Alamofire.HTTPHeaders? {
+    public var headers: [String: String] {
         switch self {
         case .timeline(_, let token, _, _, _):
-            return HTTPHeaders([
+            return [
                 "Content-Type": "application/json",
                 "Authorization": "Bearer \(token.accessToken)"
-            ])
+            ]
         }
     }
     
-    public var bodyData: Alamofire.Parameters? {
+    public var body: [String: Any] {
         switch self {
         default:
-            return nil
+            return [:]
         }
     }
     
-    public var parameters: Alamofire.Parameters? {
+    public var queryItems: [URLQueryItem] {
         switch self {
         case .timeline(_, _, _, let minID, let maxID):
-            var parameters: [String: Any] = [
-                "limit": 20
+            var parameters: [URLQueryItem] = [
+                .init(name: "limit", value: "20")
             ]
             if let minID {
-                parameters["min_id"] = minID
+                parameters.append(.init(name: "min_id", value: minID))
             }
             if let maxID {
-                parameters["max_id"] = maxID
+                parameters.append(.init(name: "max_id", value: maxID))
             }
             return parameters
         default:
-            return nil
+            return []
         }
     }
     
@@ -78,13 +77,6 @@ extension HolloAPI: NetworkingAPIType {
         switch self {
         default:
             return nil
-        }
-    }
-    
-    public var encoding: any Alamofire.ParameterEncoding {
-        switch self {
-        default:
-            return URLEncoding.default
         }
     }
 }

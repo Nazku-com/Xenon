@@ -11,7 +11,7 @@ import Foundation
 public protocol NetworkingDTOType: Codable {
     
     associatedtype EntityType: NetworkingEntityType
-    func toEntity() -> EntityType
+    func toEntity() throws -> EntityType
 }
 
 extension Array: NetworkingDTOType where Element: NetworkingDTOType {
@@ -19,6 +19,6 @@ extension Array: NetworkingDTOType where Element: NetworkingDTOType {
     public typealias EntityType = [Element.EntityType]
 
     public func toEntity() -> EntityType {
-        compactMap { $0.toEntity() }
+        compactMap { try? $0.toEntity() }
     }
 }

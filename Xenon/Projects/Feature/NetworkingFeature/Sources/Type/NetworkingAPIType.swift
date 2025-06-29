@@ -22,26 +22,29 @@ public struct MultipartFormData {
     }
 }
 
+public enum HttpMethod: String {
+    
+    case get = "GET"
+    case head = "HEAD"
+    case post = "POST"
+    case put = "PUT"
+    case delete = "DELETE"
+}
+
+
 public protocol NetworkingAPIType {
     
     var baseURL: URL { get }
-    
     var path: String? { get }
-    
-    var method: HTTPMethod { get }
-    
-    var headers: HTTPHeaders? { get }
-    
-    var bodyData: Parameters? { get }
-    
+    var method: HttpMethod { get }
+    var headers: [String: String] { get }
+    var queryItems: [URLQueryItem] { get }
     var uploadData: MultipartFormData? { get }
-    
-    var parameters: Parameters? { get }
-    
-    var route: URL { get }
+    var body: [String: Any] { get }
 }
 
 public extension NetworkingAPIType {
+    
     var route: URL {
         guard let path = path else { return baseURL }
         return baseURL.appendingPathComponent(path)

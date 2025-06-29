@@ -18,7 +18,6 @@ public extension OauthData {
             
         case .misskey:
             let result = await NetworkingService().request(api: MisskeyAPI.revokeToken(from: url, token: token)) // TODO: -currently not work
-            print("Result: \(String(data: result ?? Data(), encoding: .utf8))")
         }
     }
 }

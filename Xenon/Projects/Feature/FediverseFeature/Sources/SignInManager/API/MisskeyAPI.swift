@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import Alamofire
 import NetworkingFeature
 
 public enum MisskeyAPI {
@@ -31,6 +30,7 @@ public enum MisskeyAPI {
 }
 
 extension MisskeyAPI: NetworkingAPIType {
+    
     public var baseURL: URL {
         switch self {
         case .createToken(let url, _), .createSession(let url, _, _),
@@ -78,7 +78,7 @@ extension MisskeyAPI: NetworkingAPIType {
         }
     }
     
-    public var method: Alamofire.HTTPMethod {
+    public var method: NetworkingFeature.HttpMethod {
         switch self {
         case .createToken, .timeline, .createReaction,
                 .deleteReaction, .singleNote, .userShow,
@@ -89,24 +89,24 @@ extension MisskeyAPI: NetworkingAPIType {
         }
     }
     
-    public var headers: Alamofire.HTTPHeaders? {
+    public var headers: [String : String] {
         switch self {
         case .timeline(_, let token, _, _, _), .createReaction(_, let token, _, _),
                 .deleteReaction(_, let token, _), .singleNote(_, let token, _),
                 .userShow(_, let token, _, _), .replies(_, let token, _),
                 .boost(_, _, let token):
-            return HTTPHeaders([
+            return [
                 "Authorization": "Bearer \(token.accessToken)",
                 "Content-Type": "application/json"
-            ])
+            ]
         default:
-            return HTTPHeaders([
+            return [
                 "Content-Type": "application/json"
-            ])
+            ]
         }
     }
     
-    public var bodyData: Alamofire.Parameters? {
+    public var body: [String : Any] {
         switch self {
         case .timeline(_, _, _, let sinceID, let untilID):
             var body: [String: Any] = [
@@ -158,16 +158,16 @@ extension MisskeyAPI: NetworkingAPIType {
                 "renoteId": id
             ]
         default:
-            return nil
+            return [:]
         }
     }
     
-    public var parameters: Alamofire.Parameters? {
+    public var queryItems: [URLQueryItem] {
         switch self {
         case .createSession(_, _, let appInfo):
             return [
-                "callback": appInfo.scheme,
-                "permission": [
+                .init(name: "callback", value: "appInfo.scheme"),
+                .init(name: "permission", value: [
                     "read:admin",
                     "write:admin",
                     
@@ -211,10 +211,10 @@ extension MisskeyAPI: NetworkingAPIType {
                     "write:user",
                     "write:votes",
                 ]
-                    .joined(separator: ",")
+                    .joined(separator: ",")),
             ]
         default:
-            return nil
+            return []
         }
     }
     
@@ -222,13 +222,6 @@ extension MisskeyAPI: NetworkingAPIType {
         switch self {
         default:
             return nil
-        }
-    }
-    
-    public var encoding: any Alamofire.ParameterEncoding {
-        switch self {
-        default:
-            return URLEncoding.default
         }
     }
 }

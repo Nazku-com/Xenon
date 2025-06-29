@@ -23,10 +23,7 @@ struct MisskeySignInManager {
         components.scheme = url.scheme
         components.host = url.host()
         components.path += "/miauth/\(UUID().uuidString)"
-        components.queryItems = createTokenAPI.parameters?.compactMap{ key, value in
-            guard let value = value as? String else { return nil }
-            return URLQueryItem(name: key, value: value)
-        }
+        components.queryItems = createTokenAPI.queryItems
         guard let oauthURL = components.url else {
             return .failure(.urlNotFound)
         }
