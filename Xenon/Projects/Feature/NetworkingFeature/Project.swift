@@ -9,7 +9,5 @@ let project = Project.module(
             .target(name: ModulePaths.feature(.NetworkingFeature).name)
         ])
     ],
-    dependencies: [
-        .external(name: "Alamofire")
-    ]
+    dependencies: []
 )

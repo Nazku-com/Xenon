@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import Alamofire
 import NetworkingFeature
 
 public typealias Emojis = [String: URL]

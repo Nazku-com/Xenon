@@ -19,6 +19,13 @@ extension Array: NetworkingDTOType where Element: NetworkingDTOType {
     public typealias EntityType = [Element.EntityType]
 
     public func toEntity() -> EntityType {
-        compactMap { try? $0.toEntity() }
+        compactMap {
+            do {
+                return try $0.toEntity()
+            } catch(let error) {
+                print(error)
+                return nil
+            }
+        }
     }
 }

@@ -9,7 +9,6 @@
 // original source from https://github.com/MastodonKit/MastodonKit
 
 import Foundation
-import Alamofire
 import NetworkingFeature
 
 public class MastodonResponseDTO: NetworkingDTOType {

@@ -9,7 +9,6 @@ import PackageDescription
         // Customize the product types for specific package product
         // Default is .staticFramework
          productTypes: [
-            "Alamofire": .framework,
             "Kingfisher": .framework,
             "SDWebImage": .framework,
             "Neumorphic": .framework,
@@ -26,7 +25,6 @@ let package = Package(
     name: "Tuist",
     dependencies: [
         // Add your own dependencies here:
-         .package(url: "https://github.com/Alamofire/Alamofire", from: "5.9.0"),
          .package(url: "https://github.com/onevcat/Kingfisher.git", from: "8.1.3"),
          .package(url: "https://github.com/SDWebImage/SDWebImage", from: "5.20.0"),
          .package(url: "https://github.com/costachung/neumorphic", from: "2.0.7"),

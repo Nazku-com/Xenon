@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import Alamofire
 import NetworkingFeature
 
 public struct AccountStatusData {
@@ -255,13 +254,6 @@ extension MastodonAPI: NetworkingAPIType {
             return content
         default:
             return nil
-        }
-    }
-    
-    public var encoding: any Alamofire.ParameterEncoding {
-        switch self {
-        default:
-            return URLEncoding.default
         }
     }
 }
