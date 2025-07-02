@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import NetworkingFeature
 import SwiftHTMLtoMarkdown
 import EmojiText
 
@@ -15,9 +16,8 @@ public struct HtmlText: View {
     let html: String
     let emojis: [RemoteEmoji]
     let emojiSize: CGFloat?
-    private let markdownText: String?
     
-    
+    @State private var markdownText: String?
     @State private var nsAttributedString: NSAttributedString?
     
     public var body: some View {
@@ -26,6 +26,9 @@ public struct HtmlText: View {
                 .emojiText.size(emojiSize)
         } else {
             failBackView
+                .task {
+                    htmlToMarkDown()
+                }
         }
     }
     
@@ -46,9 +49,18 @@ public struct HtmlText: View {
         self.html = rawHtml
         self.emojis = emojis
         self.emojiSize = emojiSize
-        var document = BasicHTML(rawHTML: rawHtml)
+    }
+    private func htmlToMarkDown() {
+        Task { @MainActor in
+            let markdownText = await parseHTML()
+            self.markdownText = markdownText
+        }
+    }
+    
+    @BackgroundActor
+    private func parseHTML() async -> String? {
+        var document = BasicHTML(rawHTML: html)
         try? document.parse()
-        
-        markdownText = try? document.asMarkdown()
+        return try? document.asMarkdown()
     }
 }

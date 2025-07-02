@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import Alamofire
 
 public protocol NetworkingEntityType: Codable { }
 

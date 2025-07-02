@@ -15,7 +15,6 @@ public struct ContentCellView<Buttons: View, Content: ContentType>: View {
     @State var hideContents: Bool
     @State var content: Content
     var onAvatarTapped: ((Content.Account) -> Void)
-    let urls: [URL]
     let contentLineLimit: Int?
     let buttons: Buttons
     
@@ -53,7 +52,7 @@ public struct ContentCellView<Buttons: View, Content: ContentType>: View {
                     .frame(width: 32, height: 32)
                     .clipShape(.circle)
                 }
-
+                
                 HtmlText(rawHtml: content.account.name, emojis: content.account.remoteEmoji, emojiSize: DesignFont.FontSize.extraSmall)
                     .font(DesignFont.Rounded.Medium.extraSmall)
                     .lineLimit(2)
@@ -193,9 +192,5 @@ public struct ContentCellView<Buttons: View, Content: ContentType>: View {
         self.buttons = buttons()
         self.onAvatarTapped = onAvatarTapped
         self.hideContents = hideContents
-        
-        let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
-        let matches = detector?.matches(in: content.content, options: [], range: NSRange(location: 0, length: content.content.utf16.count))
-        urls = matches?.compactMap({ $0.url }) ?? []
     }
 }

@@ -59,11 +59,14 @@ public extension OauthData {
     private func uploadMedia(formData: NetworkingFeature.MultipartFormData) async -> String? {
         switch nodeType {
         case .mastodon, .mastodonCompatible, .hollo:
-            guard let data = await NetworkingService().request(api: MastodonAPI.media(from: url, token: token, content: formData)) else {
+            let result = await NetworkingService().request(api: MastodonAPI.media(from: url, token: token, content: formData))
+            switch result {
+            case .success(let data):
+                let dictionary = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+                return dictionary?["id"] as? String
+            case .failure: // TODO: -
                 return nil
             }
-            let dictionary = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-            return dictionary?["id"] as? String
         case .misskey:
             return nil
         }

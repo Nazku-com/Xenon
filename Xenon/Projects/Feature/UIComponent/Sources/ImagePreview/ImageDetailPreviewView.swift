@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import Alamofire
 import Kingfisher
 
 public struct ImageDetailPreviewView: View {

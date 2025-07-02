@@ -8,7 +8,6 @@
 
 import Foundation
 import AuthenticationServices
-import Alamofire
 import NetworkingFeature
 import SwiftUI
 import os

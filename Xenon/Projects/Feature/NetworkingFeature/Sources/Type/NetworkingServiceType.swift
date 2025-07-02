@@ -11,11 +11,14 @@ import Foundation
 public protocol NetworkingServiceType {
     
     func request<T: NetworkingDTOType>(api: NetworkingAPIType, dtoType: T.Type) async -> Result<T.EntityType, NetworkingServiceError>
-    func request(api: NetworkingAPIType) async -> Data?
+    func request(api: NetworkingAPIType) async -> Result<Data, Error>
 }
 
 public enum NetworkingServiceError: Error {
     
-    case jsonParsingFailed(String)
+    case uploadDataNotFound
+    case parseEntityError
+    case jsonParsingFailed(Error)
     case networkError(String)
+    case asError(Error)
 }

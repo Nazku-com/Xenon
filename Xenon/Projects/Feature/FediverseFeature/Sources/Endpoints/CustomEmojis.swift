@@ -14,19 +14,18 @@ public extension OauthData {
     func customEmojis() async -> Result<[String: [CustomEmojiEntity]], NetworkingServiceError> {
         switch nodeType {
         case .mastodon, .mastodonCompatible, .hollo:
-            let data = await NetworkingService().request(
-                api: MastodonAPI.customEmojis(from: url, token: token)
-            )
-            guard let data else {
-                return .failure(.networkError("data is nil"))
+            let result = await NetworkingService().request(api: MastodonAPI.customEmojis(from: url, token: token))
+            switch result {
+            case .success(let data):
+                do {
+                    let result = try JSONDecoder().decode([CustomEmojiDTO].self, from: data)
+                    return .success(result.toEntity().toDictionary)
+                } catch (let error) {
+                    return .failure(.jsonParsingFailed(error))
+                }
+            case .failure(let failure):
+                return .failure(.asError(failure))
             }
-            do {
-                let result = try JSONDecoder().decode([CustomEmojiDTO].self, from: data)
-                return .success(result.toEntity().toDictionary)
-            } catch (let error) {
-                return .failure(.jsonParsingFailed(error.localizedDescription))
-            }
-            
         case .misskey:
             return .failure(.networkError("not yet implement"))
         }

@@ -1,5 +1,4 @@
 import SwiftUI
-import Alamofire
 import NetworkingFeature
 
 public struct ContentView: View {
