@@ -10,8 +10,8 @@ import Foundation
 
 public protocol NetworkingServiceType {
     
-    func request<T: NetworkingDTOType>(api: NetworkingAPIType, dtoType: T.Type) async -> Result<T.EntityType, NetworkingServiceError>
-    func request(api: NetworkingAPIType) async -> Result<Data, Error>
+    func request<T: NetworkingDTOType>(api: NetworkingAPIType, dtoType: T.Type) async -> Result<(data: T.EntityType, urlResponse: URLResponse), NetworkingServiceError>
+    func request(api: NetworkingAPIType) async -> Result<(Data, URLResponse), Error>
 }
 
 public enum NetworkingServiceError: Error {

@@ -21,7 +21,7 @@ extension Target {
         product: Product,
         productName: String? = nil,
         bundleId: String,
-        deploymentTargets: DeploymentTargets = .iOS("17.0"),
+        deploymentTargets: DeploymentTargets = .iOS("18.0"),
         infoPlist: InfoPlist,
         sources: SourceFilesList,
         resources: ResourceFileElements? = nil,

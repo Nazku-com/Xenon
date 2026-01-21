@@ -13,14 +13,17 @@ public final class NetworkingService: NetworkingServiceType {
     // MARK: - Interface
     
     @BackgroundActor
-    public func request<T: NetworkingDTOType>(api: NetworkingAPIType, dtoType: T.Type) async -> Result<T.EntityType, NetworkingServiceError> {
+    public func request<T: NetworkingDTOType>(
+        api: NetworkingAPIType,
+        dtoType: T.Type
+    ) async -> Result<(data: T.EntityType, urlResponse: URLResponse), NetworkingServiceError> {
         let result = await request(api: api)
         switch result {
         case .success(let data):
             do {
-                let result = try JSONDecoder().decode(T.self, from: data)
-                let entity = try result.toEntity()
-                return .success(entity)
+                let result = try JSONDecoder().decode(T.self, from: data.0)
+                let entity = try await result.toEntity()
+                return .success((entity, data.1))
             } catch(let error) {
                 return .failure(.jsonParsingFailed(error))
             }
@@ -30,7 +33,7 @@ public final class NetworkingService: NetworkingServiceType {
     }
     
     @BackgroundActor
-    public func request(api: NetworkingAPIType) async -> Result<Data, Error> {
+    public func request(api: NetworkingAPIType) async -> Result<(Data, URLResponse), Error> {
         if api.method == .post,
            api.headers["Content-Type"] == "multipart/form-data" {
             return await upload(api: api)
@@ -46,15 +49,15 @@ public final class NetworkingService: NetworkingServiceType {
             urlRequest.httpBody = try? JSONSerialization.data(withJSONObject: api.body, options: [])
         }
         do {
-            let (data, _) = try await session.data(for: urlRequest)
-            return .success(data)
+            let (data, urlResponse) = try await session.data(for: urlRequest)
+            return .success((data, urlResponse))
         } catch(let error) {
             return .failure(error)
         }
     }
     
     @BackgroundActor
-    private func upload(api: NetworkingAPIType) async -> Result<Data, Error> {
+    private func upload(api: NetworkingAPIType) async -> Result<(Data, URLResponse), Error> {
         var request = URLRequest(url: api.route)
         request.httpMethod = api.method.rawValue
         request.allHTTPHeaderFields = api.headers
@@ -83,8 +86,8 @@ public final class NetworkingService: NetworkingServiceType {
         body.append("--\(boundary)--\r\n".data(using: .utf8)!)
         
         do {
-            let (data, _) = try await session.upload(for: request, from: body)
-            return .success(data)
+            let (data, urlResponse) = try await session.upload(for: request, from: body)
+            return .success((data, urlResponse))
         } catch(let error) {
             return .failure(error)
         }

@@ -15,7 +15,8 @@ public struct ContentView: View {
             )
             Spacer()
         }.task {
-            let result = await NetworkingService().request(api: NodeInfoAPI.get(url: URL(string: "https://haze.social/nodeinfo/2.0")!), dtoType: NodeInfoDTO.self)
+            let result = await NetworkingService().request(api: DirectRequestAPI(baseURL: URL(string: "https://haze.social/nodeinfo/2.0")!, method: .get), dtoType: NodeInfoDTO.self)
+            print(result) // swiftlint:disable:this no_print
         }
     }
 }

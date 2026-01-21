@@ -1,58 +1,40 @@
 {
-  "originHash" : "2b3bafd6154c3d96868c21a5cea2ca8bf4f90e2a26707771a11b93efec0b6dcf",
+  "originHash" : "27f4ca49e92cdfff7ede97fb7eccf601ab2d5f2338904624b75471ca52f5695a",
   "pins" : [
     {
       "identity" : "emojitext",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/divadretlaw/EmojiText",
       "state" : {
-        "revision" : "976c85c24f4d13d7c7ee958b5291093a7757b5b9",
-        "version" : "4.2.1"
+        "revision" : "9e31e12b89ba00339bc3ba841befaaee8a306c55",
+        "version" : "4.4.0"
       }
     },
     {
-      "identity" : "kingfisher",
+      "identity" : "lrucache",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/onevcat/Kingfisher.git",
+      "location" : "https://github.com/nicklockwood/LRUCache.git",
       "state" : {
-        "revision" : "e6749919f9761d573d37a7d7e78b1b854c191d7f",
-        "version" : "8.1.3"
+        "revision" : "0d91406ecd4d6c1c56275866f00508d9aeacc92a",
+        "version" : "1.2.0"
       }
     },
     {
-      "identity" : "neumorphic",
+      "identity" : "swift-atomics",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/costachung/neumorphic",
+      "location" : "https://github.com/apple/swift-atomics.git",
       "state" : {
-        "revision" : "aae74c3e39fba485a540927e8050f288eff1228c",
-        "version" : "2.0.7"
-      }
-    },
-    {
-      "identity" : "nuke",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/kean/Nuke",
-      "state" : {
-        "revision" : "0ead44350d2737db384908569c012fe67c421e4d",
-        "version" : "12.8.0"
-      }
-    },
-    {
-      "identity" : "sdwebimage",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/SDWebImage/SDWebImage",
-      "state" : {
-        "revision" : "10d06f6a33bafae8c164fbfd1f03391f6d4692b3",
-        "version" : "5.20.0"
+        "revision" : "b601256eab081c0f92f059e12818ac1d4f178ff7",
+        "version" : "1.3.0"
       }
     },
     {
       "identity" : "swift-cmark",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-cmark.git",
+      "location" : "https://github.com/swiftlang/swift-cmark.git",
       "state" : {
-        "revision" : "3ccff77b2dc5b96b77db3da0d68d28068593fa53",
-        "version" : "0.5.0"
+        "revision" : "b97d09472e847a416629f026eceae0e2afcfad65",
+        "version" : "0.7.0"
       }
     },
     {
@@ -60,8 +42,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swiftlang/swift-markdown",
       "state" : {
-        "revision" : "8f79cb175981458a0a27e76cb42fee8e17b1a993",
-        "version" : "0.5.0"
+        "revision" : "7d9a5ce307528578dfa777d505496bd5f544ad94",
+        "version" : "0.7.3"
       }
     },
     {
@@ -78,17 +60,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/scinfu/SwiftSoup.git",
       "state" : {
-        "revision" : "6b4930da67b462d3f200472c902dd016d37a554d",
-        "version" : "2.7.7"
-      }
-    },
-    {
-      "identity" : "swiftui-introspect",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/siteline/SwiftUI-Introspect",
-      "state" : {
-        "revision" : "807f73ce09a9b9723f12385e592b4e0aaebd3336",
-        "version" : "1.3.0"
+        "revision" : "4206bc7b8bd9a4ff8e9511211e1b4bff979ef9c4",
+        "version" : "2.11.1"
       }
     }
   ],

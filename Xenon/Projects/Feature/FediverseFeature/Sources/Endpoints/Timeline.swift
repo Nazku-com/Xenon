@@ -2,8 +2,8 @@
 //  Timeline.swift
 //  FediverseFeature
 //
-//  Created by 김수환 on 1/27/25.
-//  Copyright © 2025 com.Nazku. All rights reserved.
+//  Created by 김수환 on 12/14/25.
+//  Copyright © 2025 social.xenon. All rights reserved.
 //
 
 import Foundation
@@ -14,38 +14,47 @@ public extension OauthData {
     func timeline(
         type: TimelineType,
         minID: String? = nil,
-        maxID: String? = nil
-    ) async -> Result<[FediverseResponseEntity], NetworkingServiceError> {
+        maxID: String? = nil,
+        pagenationURL: URL? = nil
+    ) async -> Result<(data: [FediverseResponseEntity], urlResponse: URLResponse), NetworkingServiceError> {
         switch nodeType {
         case .mastodon, .mastodonCompatible:
+            guard let pagenationURL else {
+                let data = await NetworkingService().request(
+                    api: MastodonAPI.timeline(from: url, token: token, of: type, minID: minID, maxID: maxID),
+                    dtoType: [MastodonResponseDTO].self
+                )
+                return data
+            }
             let data = await NetworkingService().request(
-                api: MastodonAPI.timeline(from: url, token: token, of: type, minID: minID, maxID: maxID),
+                api: MastodonAPI.get(from: pagenationURL, token: token),
                 dtoType: [MastodonResponseDTO].self
             )
-            
             return data
             
         case .hollo:
+            guard let pagenationURL else {
+                let data = await NetworkingService().request(
+                    api: HolloAPI.timeline(from: url, token: token, of: type, minID: minID, maxID: maxID),
+                    dtoType: [MastodonResponseDTO].self
+                )
+                return data
+            }
             let data = await NetworkingService().request(
-                api: HolloAPI.timeline(from: url, token: token, of: type, minID: minID, maxID: maxID),
+                api: MastodonAPI.get(from: pagenationURL, token: token),
                 dtoType: [MastodonResponseDTO].self
             )
-            
             return data
-            
         case .misskey:
-            let data = await NetworkingService().request(
-                api: MisskeyAPI.timeline(
-                    from: url,
-                    token: token,
-                    of: type,
-                    sinceID: minID,
-                    untilID: maxID
-                ),
-                dtoType: [MisskeyResponseDTO].self
-            )
-            
-            return data
+            return .failure(.networkError("not yet implemented")) // TODO: -
         }
     }
+}
+
+public enum TimelineType: Equatable, Codable, Hashable {
+    
+    case home
+    case federated
+    case tranding
+    case hashtag(tag: String)
 }

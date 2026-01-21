@@ -2,104 +2,76 @@
 //  SideBarView.swift
 //  UIComponent
 //
-//  Created by 김수환 on 1/26/25.
-//  Copyright © 2025 com.Nazku. All rights reserved.
+//  Created by 김수환 on 12/27/25.
+//  Copyright © 2025 social.xenon. All rights reserved.
 //
 
 import SwiftUI
-import SwiftUIIntrospect
 import Combine
+import Sugar
 
-public final class SideBarViewModel: ObservableObject {
+public struct SideBarView<SideBarView: View, ContentView: View>: View {
     
-    public let sideBarOpenPublisher = PassthroughSubject<Bool,Never>()
-    public let sideBarOpenablePublisher = PassthroughSubject<Bool,Never>()
+    let sideBarOpenPublisher: PassthroughSubject<Void, Never>
+    let sideBarView: () -> SideBarView
+    let contentView: () -> ContentView
     
-    public static let shared = SideBarViewModel()
-    private init() {}
-}
-
-public struct SideBarView<SideBar: View, Content: View>: View {
-    
-    let sideBar: SideBar
-    let content: Content
-    
-    public init(model: SideBarViewModel, @ViewBuilder sideBar: () -> SideBar, @ViewBuilder content: () -> Content) {
-        self.model = model
-        self.sideBar = sideBar()
-        self.content = content()
-    }
-    
-    @State private var canOpenSideBar = true
-    @State private var dimmValue: CGFloat = 0
-    @ObservedObject private var model: SideBarViewModel
+    @State private var offsetX: CGFloat = .zero
+    @State private var sideBarWidth: CGFloat = .zero
     
     public var body: some View {
-        GeometryReader { proxy in
-            ScrollViewReader { scrollProxy in
-                ScrollView(.horizontal) {
-                    HStack(spacing: 0) {
-                        sideBar
-                            .id(0)
-                            .frame(height: proxy.size.height)
-                        content
-                            .overlay {
-                                Color.black.opacity(dimmValue).ignoresSafeArea()
-                                    .onTapGesture {
-                                        withAnimation {
-                                            scrollProxy.scrollTo(1)
-                                        }
-                                    }
+        VStack {
+            contentView()
+                .overlay {
+                    Color.black.opacity(offsetX/sideBarWidth * 0.1).ignoresSafeArea()
+                        .onTapGesture {
+                            withAnimation(.easeIn(duration: 0.15)) {
+                                offsetX = .zero
                             }
-                            .background(GeometryReader {
-                                Color.clear.preference(
-                                    key: SideBarScrollOffsetKey.self,
-                                    value: max($0.frame(in: .named("area")).origin.x, 0)
-                                )
-                            })
-                            .id(1)
-                            .frame(width: proxy.size.width, height: proxy.size.height)
-                            .onAppear {
-                                scrollProxy.scrollTo(1)
+                        }
+                }
+                .overlay(alignment: .leading) {
+                    sideBarView()
+                        .onTapGesture {
+                            withAnimation(.easeIn(duration: 0.15)) {
+                                offsetX = .zero
                             }
-                    }
-                    .onReceive(model.sideBarOpenPublisher) { openSideBar in
-                        guard canOpenSideBar else { return }
-                        withAnimation {
-                            scrollProxy.scrollTo(openSideBar ? 0 : 1)
+                        }
+                        .onReadSize { size in
+                            sideBarWidth = size.width + 80
+                        }
+                        .offset(x: min(max(offsetX - sideBarWidth, -sideBarWidth), 0))
+                }
+        }.gesture(
+            DragGesture()
+                .onChanged { value in
+                    guard offsetX < sideBarWidth else { return }
+                    offsetX = value.translation.width
+                }
+                .onEnded { _ in
+                    withAnimation {
+                        if offsetX > sideBarWidth / 3 {
+                            offsetX = sideBarWidth
+                        } else {
+                            offsetX = .zero
                         }
                     }
-                    .onReceive(model.sideBarOpenablePublisher) { canOpenSideBar in
-                        self.canOpenSideBar = canOpenSideBar
-                    }
                 }
-                .scrollDisabled(!canOpenSideBar)
-                .introspect(.scrollView, on: .iOS(.v13, .v14, .v15, .v16, .v17, .v18)) { scrollView in
-                    scrollView.alwaysBounceVertical = false
-                    scrollView.alwaysBounceHorizontal = false
-                    scrollView.bounces = false
-                }
-                .scrollTargetBehavior(.paging)
-                .scrollIndicators(.hidden)
-                .background(Color.Neumorphic.main)
-                .coordinateSpace(name: "area")
-                .onPreferenceChange(SideBarScrollOffsetKey.self) { value in
-                    let maxFrameToDimm: CGFloat = min(proxy.size.width / 2, 200)
-                    dimmValue = (min(value, maxFrameToDimm) / (maxFrameToDimm * 2))
-                }
-                .onRotate { _ in
-                    scrollProxy.scrollTo(1)
-                }
+        )
+        .onReceive(sideBarOpenPublisher) { _ in
+            withAnimation {
+                offsetX = sideBarWidth
             }
         }
     }
-}
-
-struct SideBarScrollOffsetKey: PreferenceKey {
     
-    typealias Value = CGFloat
-    static var defaultValue = CGFloat.zero
-    static func reduce(value: inout Value, nextValue: () -> Value) {
-        value += nextValue()
+    public init(
+        sideBarOpenPublisher: PassthroughSubject<Void, Never> = .init(),
+        sideBarView: @escaping () -> SideBarView,
+        contentView: @escaping () -> ContentView
+    ) {
+        self.sideBarOpenPublisher = sideBarOpenPublisher
+        self.sideBarView = sideBarView
+        self.contentView = contentView
     }
 }

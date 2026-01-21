@@ -2,8 +2,8 @@
 //  Notifications.swift
 //  FediverseFeature
 //
-//  Created by 김수환 on 1/31/25.
-//  Copyright © 2025 com.Nazku. All rights reserved.
+//  Created by 김수환 on 12/14/25.
+//  Copyright © 2025 social.xenon. All rights reserved.
 //
 
 import SwiftUI
@@ -11,17 +11,33 @@ import NetworkingFeature
 
 public extension OauthData {
     
-    func notifications(minID: String? = nil, maxID: String? = nil) async -> Result<[FediverseNotificationEntity], NetworkingServiceError> {
+    func notifications(pagenationURL: URL? = nil) async -> Result<(data: [FediverseNotificationEntity], urlResponse: URLResponse), NetworkingServiceError> {
         switch nodeType {
         case .mastodon, .mastodonCompatible, .hollo:
+            guard let pagenationURL else {
+                let response = await NetworkingService().request(
+                    api: MastodonAPI.notifications(from: url, token: token),
+                    dtoType: [MastodonNotificationDTO].self
+                )
+                switch response {
+                case .success(let success):
+                    return .success(success)
+                case .failure(let failure):
+                    return .failure(failure)
+                }
+            }
             let response = await NetworkingService().request(
-                api: MastodonAPI.notifications(from: url, token: token, minID: minID, maxID: maxID),
+                api: MastodonAPI.get(from: pagenationURL, token: token),
                 dtoType: [MastodonNotificationDTO].self
             )
-            return response
-            
+            switch response {
+            case .success(let success):
+                return .success(success)
+            case .failure(let failure):
+                return .failure(failure)
+            }
         case .misskey:
-            return .failure(.networkError("not yet implemented"))
+            return .failure(.networkError("not yet implemented")) // TODO: -
         }
     }
 }
@@ -41,12 +57,12 @@ struct MastodonNotificationDTO: NetworkingDTOType {
         case createdAt = "created_at"
     }
     
-    func toEntity() -> FediverseNotificationEntity {
+    func toEntity() async -> FediverseNotificationEntity {
         .init(
             id: id,
             type: .init(fromRawValue: type),
-            account: account?.toEntity(),
-            status: status?.toEntity(),
+            account: try? await account?.toEntity(),
+            status: try? await status?.toEntity(),
             createdAt: DateFormatter.fediverseFormatter.date(from: createdAt) ?? Date()
         )
     }
@@ -101,5 +117,13 @@ public struct FediverseNotificationEntity: NetworkingEntityType, Identifiable {
             case admin_sign_up = "admin.sign_up"
             case admin_report = "admin.report"
         }
+    }
+    
+    public init(id: String, type: NotificationType, account: FediverseAccountEntity?, status: FediverseResponseEntity?, createdAt: Date) {
+        self.id = id
+        self.type = type
+        self.account = account
+        self.status = status
+        self.createdAt = createdAt
     }
 }
