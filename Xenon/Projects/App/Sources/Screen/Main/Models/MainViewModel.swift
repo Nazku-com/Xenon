@@ -14,7 +14,8 @@ import FediverseFeature
 final class MainViewModel {
     
     let output: PassthroughSubject<Output, Never> = .init()
-    
+    var feedsViewModel: FeedsViewModel = .init(feeds: [])
+
     var isLoggedIn: Bool {
         !oAuthDatas.isEmpty
     }
@@ -31,10 +32,23 @@ final class MainViewModel {
     }
     
     func logIn(with oAuthData: OauthData) {
-        oAuthDatas.append(oAuthData)
+        if !oAuthDatas.contains(where: { $0.url == oAuthData.url && $0.token.accessToken == oAuthData.token.accessToken }) {
+            oAuthDatas.append(oAuthData)
+        }
         currentOAuthData = oAuthData
     }
-    
+
+    func switchAccount(to oAuthData: OauthData) {
+        currentOAuthData = oAuthData
+    }
+
+    func removeAccount(_ oAuthData: OauthData) {
+        oAuthDatas.removeAll { $0.id == oAuthData.id }
+        if currentOAuthData?.id == oAuthData.id {
+            currentOAuthData = oAuthDatas.first
+        }
+    }
+
     func navigateTo(_ viewController: UIViewController, withTapPoint point: CGPoint? = nil) {
         output.send(.navigateTo(viewController, point))
     }
@@ -121,5 +135,7 @@ extension MainViewModel {
         case navigateTo(UIViewController, CGPoint?)
         case openURL(URL)
         case toggleSideBarState
+        case addAccount
+        case dismissSideBar
     }
 }

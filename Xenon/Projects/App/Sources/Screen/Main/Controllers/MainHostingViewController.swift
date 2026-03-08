@@ -55,12 +55,21 @@ final class MainHostingViewController: BaseHostingViewController<MainView> {
         model.output.receive(on: DispatchQueue.main)
             .sink { [weak self] output in
                 guard let self else { return }
+                guard model.isLoggedIn else {
+                    navigateToLogin()
+                    return
+                }
                 switch output {
                 case .navigateTo(let viewController, let point):
                     tappedPoint = point
                     navigationController?.pushViewController(viewController, animated: true)
                 case .toggleSideBarState:
                     toggleSideBarState()
+                case .addAccount:
+                    dismissSideBar()
+                    presentAddAccountFlow()
+                case .dismissSideBar:
+                    dismissSideBar()
                 case .openURL(let url):
                     openURL(url)
                 }
@@ -130,7 +139,7 @@ private extension MainHostingViewController {
         let progress = gestureRecognizer.translation(in: view).x / SideBarView.Metric.contentViewWidth
         switch gestureRecognizer.state {
         case .began:
-            sideBarView = .init(frame: view.frame, safeAreaInsets: view.safeAreaInsets, dimmViewDidTapPublisher: dimmViewDidTapPublisher)
+            sideBarView = .init(frame: view.frame, safeAreaInsets: view.safeAreaInsets, dimmViewDidTapPublisher: dimmViewDidTapPublisher, mainViewModel: model)
             guard let sideBarView else { return }
             view.superview?.addSubview(sideBarView)
         case .changed:
@@ -150,7 +159,7 @@ private extension MainHostingViewController {
     
     private func toggleSideBarState() {
         if sideBarView == nil {
-            sideBarView = .init(frame: view.frame, safeAreaInsets: view.safeAreaInsets, dimmViewDidTapPublisher: dimmViewDidTapPublisher)
+            sideBarView = .init(frame: view.frame, safeAreaInsets: view.safeAreaInsets, dimmViewDidTapPublisher: dimmViewDidTapPublisher, mainViewModel: model)
             view.superview?.addSubview(sideBarView!)
             UIView.animate(withDuration: 0.2) {
                 self.sideBarView?.updateProgress(1)
@@ -160,6 +169,28 @@ private extension MainHostingViewController {
         }
     }
     
+    private func navigateToLogin() {
+        guard let windowScene = view.window?.windowScene,
+              let sceneDelegate = windowScene.delegate as? SceneDelegate else { return }
+        sceneDelegate.mainViewModel = MainViewModel()
+        let rootVC = sceneDelegate.viewController(for: sceneDelegate.mainViewModel)
+        view.window?.rootViewController = rootVC
+    }
+
+    private func presentAddAccountFlow() {
+        let loginView = LoginView()
+        loginView.model.loginPublisher
+            .receive(on: RunLoop.main)
+            .sink { [weak self] oAuthData in
+                guard let self else { return }
+                model.logIn(with: oAuthData)
+                presentedViewController?.dismiss(animated: true)
+            }
+            .store(in: &cancellables)
+        let hostingController = UIHostingController(rootView: loginView)
+        present(hostingController, animated: true)
+    }
+
     private func dismissSideBar() {
         UIView.animate(withDuration: 0.2) {
             self.sideBarView?.updateProgress(.zero)

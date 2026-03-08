@@ -19,6 +19,11 @@ public enum MastodonAPI {
     case notifications(from: URL, token: OauthTokenEntity)
     case get(from: URL, token: OauthTokenEntity)
     case context(from: URL, token: OauthTokenEntity, id: String)
+    case favourite(from: URL, token: OauthTokenEntity, id: String)
+    case unfavourite(from: URL, token: OauthTokenEntity, id: String)
+    case postStatus(from: URL, token: OauthTokenEntity, status: String, inReplyToID: String?, visibility: String, spoilerText: String?)
+    case reblog(from: URL, token: OauthTokenEntity, id: String)
+    case unreblog(from: URL, token: OauthTokenEntity, id: String)
 }
 
 @available(macOS 13.3, *)
@@ -27,7 +32,8 @@ extension MastodonAPI: NetworkingAPIType {
     public var baseURL: URL {
         switch self {
         case .registerApp(let url, _), .createToken(let url, _, _, _, _), .checkUserInfo(let url, _), .timeline(let url, _, _, _, _), .notifications(let url, _),
-                .get(let url, _), .context(let url, _, _):
+                .get(let url, _), .context(let url, _, _), .favourite(let url, _, _), .unfavourite(let url, _, _), .postStatus(let url, _, _, _, _, _),
+                .reblog(let url, _, _), .unreblog(let url, _, _):
             return url
         }
     }
@@ -46,6 +52,16 @@ extension MastodonAPI: NetworkingAPIType {
             return "/api/v1/notifications"
         case .context(_, _, let id):
             return "/api/v1/statuses/\(id)/context"
+        case .favourite(_, _, let id):
+            return "/api/v1/statuses/\(id)/favourite"
+        case .unfavourite(_, _, let id):
+            return "/api/v1/statuses/\(id)/unfavourite"
+        case .postStatus:
+            return "/api/v1/statuses"
+        case .reblog(_, _, let id):
+            return "/api/v1/statuses/\(id)/reblog"
+        case .unreblog(_, _, let id):
+            return "/api/v1/statuses/\(id)/unreblog"
         default:
             return nil
         }
@@ -55,7 +71,7 @@ extension MastodonAPI: NetworkingAPIType {
         switch self {
         case .checkUserInfo, .timeline, .notifications, .get, .context:
             return .get
-        case .registerApp, .createToken:
+        case .registerApp, .createToken, .favourite, .unfavourite, .postStatus, .reblog, .unreblog:
             return .post
         }
     }
@@ -66,7 +82,9 @@ extension MastodonAPI: NetworkingAPIType {
             return [
                 "Content-Type": "application/json"
             ]
-        case .checkUserInfo(_, let token), .timeline(_, let token, _, _, _), .notifications(_, let token), .get(_, let token), .context(_, let token, _):
+        case .checkUserInfo(_, let token), .timeline(_, let token, _, _, _), .notifications(_, let token), .get(_, let token), .context(_, let token, _),
+             .favourite(_, let token, _), .unfavourite(_, let token, _), .postStatus(_, let token, _, _, _, _),
+             .reblog(_, let token, _), .unreblog(_, let token, _):
             return [
                 "Content-Type": "application/json",
                 "Authorization": "Bearer \(token.accessToken)"
@@ -92,11 +110,24 @@ extension MastodonAPI: NetworkingAPIType {
                 "redirect_uri": appInfo.scheme,
                 "scope": "read write follow push"
             ]
+        case .postStatus(_, _, let status, let inReplyToID, let visibility, let spoilerText):
+            var params: [String: Any] = [
+                "status": status,
+                "visibility": visibility
+            ]
+            if let inReplyToID {
+                params["in_reply_to_id"] = inReplyToID
+            }
+            if let spoilerText, !spoilerText.isEmpty {
+                params["spoiler_text"] = spoilerText
+                params["sensitive"] = true
+            }
+            return params
         default:
             return [:]
         }
     }
-    
+
     public var queryItems: [URLQueryItem] {
         switch self {
         case .timeline(_, _, let type, let minID, let maxID):

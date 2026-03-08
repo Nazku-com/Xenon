@@ -6,15 +6,15 @@ import FediverseFeature
 
 struct MainView: View {
     
-    @State var feedsViewModel: FeedsViewModel = .init(feeds: [])
     @State var mainViewModel: MainViewModel
     @AppStorage("selectedTab") private var selectedTab = TabItem.feed
-    
-    @State var isSheetShown = false
+
+    @State var isComposeShown = false
     
     var body: some View {
         if let currentOAuthData = mainViewModel.currentOAuthData {
             contentView(currentOAuthData: currentOAuthData)
+                .id(currentOAuthData.id)
                 .navigationTitle("")
                 .environment(mainViewModel)
                 .environment(\.openURL, OpenURLAction { url in
@@ -24,6 +24,9 @@ struct MainView: View {
                     return .handled
                 })
                 .onOpenURL { _ in }
+                .onChange(of: mainViewModel.currentOAuthData?.id) {
+                    mainViewModel.feedsViewModel.feeds = []
+                }
         } else {
             EmptyView()
         }
@@ -35,10 +38,28 @@ struct MainView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Menu {
+                        ForEach(mainViewModel.oAuthDatas) { account in
+                            Button {
+                                mainViewModel.switchAccount(to: account)
+                            } label: {
+                                let name = account.user?.displayName ?? account.user?.username ?? ""
+                                let host = account.url.host() ?? ""
+                                Label(
+                                    "\(name) (\(host))",
+                                    systemImage: mainViewModel.currentOAuthData?.id == account.id ? "checkmark.circle.fill" : "person.circle"
+                                )
+                            }
+                        }
+                        Divider()
+                        Button {
+                            mainViewModel.output.send(.addAccount)
+                        } label: {
+                            Label("Add Account", systemImage: "plus.circle")
+                        }
                         Button {
                             mainViewModel.output.send(.toggleSideBarState)
                         } label: {
-                            Text("asdf")
+                            Label("Open Sidebar", systemImage: "sidebar.left")
                         }
                     } label: {
                         ImageView(url: currentOAuthData.user?.avatar)
@@ -57,26 +78,19 @@ struct MainView: View {
                 }
                 
                 ToolbarItem(placement: .topBarTrailing) {
-                    switch selectedTab {
-                    case .feed:
-                        Button {
-                            isSheetShown.toggle()
-                        } label: {
-                            Image(systemName: "pencil.and.scribble")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .padding(4)
-                                .frame(width: 32, height: 32)
-                        }
-                    case .notifications:
-                        EmptyView()
-                    case .search:
-                        EmptyView()
+                    Button {
+                        isComposeShown.toggle()
+                    } label: {
+                        Image(systemName: "pencil.and.scribble")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .padding(4)
+                            .frame(width: 32, height: 32)
                     }
                 }
             }
-            .sheet(isPresented: $isSheetShown) {
-                Text("!@#")
+            .sheet(isPresented: $isComposeShown) {
+                ComposeView(oAuthData: mainViewModel.currentOAuthData)
             }
     }
     
@@ -85,14 +99,21 @@ struct MainView: View {
     private var feedTapIndicator: some View {
         ScrollView(.horizontal) {
             HStack {
-                ForEach(feedsViewModel.feeds) { feed in
+                ForEach(mainViewModel.feedsViewModel.feeds) { feed in
                     Text(feed.title)
                         .padding(.vertical, 4)
                         .padding(.horizontal, 8)
-                        .glassy(tintColor: feed.title == feedsViewModel.selectedTab ? .blue : nil)
+                        .glassy(tintColor: feed.title == mainViewModel.feedsViewModel.selectedTab ? .blue : nil)
                         .id(feed.title)
                         .onTapGesture {
-                            feedsViewModel.selectedTab = feed.title
+                            mainViewModel.feedsViewModel.selectedTab = feed.title
+                        }
+                        .contextMenu {
+                            Button(role: .destructive) {
+                                mainViewModel.feedsViewModel.removeFeed(title: feed.title)
+                            } label: {
+                                Label("Remove Feed", systemImage: "trash")
+                            }
                         }
                 }
             }
@@ -100,7 +121,7 @@ struct MainView: View {
         .scrollClipDisabled()
         .scrollIndicators(.hidden)
         .scrollPosition(id: $feedTapIndicatorPosition)
-        .onChange(of: feedsViewModel.selectedTab) { _, newValue in
+        .onChange(of: mainViewModel.feedsViewModel.selectedTab) { _, newValue in
             withAnimation {
                 feedTapIndicatorPosition = newValue
             }
@@ -112,7 +133,7 @@ struct MainView: View {
         if #available(iOS 18.0, *) {
             TabView(selection: $selectedTab) {
                 Tab("Feed", systemImage: "house", value: .feed) {
-                    FeedsView(oAuthData: oAuthData, model: feedsViewModel)
+                    FeedsView(oAuthData: oAuthData, model: mainViewModel.feedsViewModel)
                 }
                 Tab("noti", systemImage: "envelope.fill", value: .notifications) {
                     NotificationsView(oAuthdata: oAuthData)
@@ -123,7 +144,7 @@ struct MainView: View {
             }
         } else {
             TabView(selection: $selectedTab) {
-                FeedsView(oAuthData: oAuthData, model: feedsViewModel)
+                FeedsView(oAuthData: oAuthData, model: mainViewModel.feedsViewModel)
                     .tabItem {
                         Image(systemName: "house")
                         Text("Feed")

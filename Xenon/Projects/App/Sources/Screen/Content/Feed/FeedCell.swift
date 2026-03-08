@@ -9,14 +9,20 @@ import SwiftUI
 import UIComponent
 import EmojiText
 import FediverseFeature
+import NetworkingFeature
 
 struct FeedCell: View {
-    
+
     @Namespace private var namespace
     @Environment(MainViewModel.self) private var mainViewModel
     let content: FediverseResponseEntity
-    
+
     @State private var isPresented: Bool = false
+    @State private var isReplyPresented: Bool = false
+    @State private var isFavourited: Bool = false
+    @State private var favouriteCount: Int = 0
+    @State private var isReblogged: Bool = false
+    @State private var reblogCount: Int = 0
     var body: some View {
         cellComponent
             .matchedTransitionSource(id: "sheet", in: namespace)
@@ -27,6 +33,18 @@ struct FeedCell: View {
                 FeedDetailView(content: content, oAuthData: mainViewModel.currentOAuthData)
                     .navigationTransition(.zoom(sourceID: "sheet", in: namespace))
             }
+            .sheet(isPresented: $isReplyPresented) {
+                ReplyComposeView(
+                    replyTo: content,
+                    oAuthData: mainViewModel.currentOAuthData
+                )
+            }
+            .onAppear {
+                isFavourited = content.favourited
+                favouriteCount = content.favouritesCount
+                isReblogged = content.reblogged
+                reblogCount = content.reblogsCount
+            }
     }
     
     @ViewBuilder
@@ -35,9 +53,19 @@ struct FeedCell: View {
             content: content.content,
             date: content.createdAt,
             buttons: [
-                .init(title: "reply", image: Image(systemName: "arrowshape.turn.up.backward"), action: {}),
-                .init(title: "boost", image: Image(systemName: "arrow.trianglehead.2.clockwise"), action: {}),
-                .init(title: "like", image: Image(systemName: "star"), action: {}),
+                .init(title: "reply", image: Image(systemName: "arrowshape.turn.up.backward"), action: {
+                    isReplyPresented = true
+                }),
+                .init(
+                    title: "\(reblogCount)",
+                    image: Image(systemName: isReblogged ? "arrow.trianglehead.2.clockwise.rotate.90" : "arrow.trianglehead.2.clockwise"),
+                    action: { toggleReblog() }
+                ),
+                .init(
+                    title: "\(favouriteCount)",
+                    image: Image(systemName: isFavourited ? "star.fill" : "star"),
+                    action: { toggleFavourite() }
+                ),
                 .init(title: "share", image: Image(systemName: "square.and.arrow.up"), action: {}),
             ],
             emojis: content.emojis.toRemoteEmojies,
@@ -80,6 +108,52 @@ struct FeedCell: View {
         }
     }
     
+    private func toggleReblog() {
+        guard let oAuthData = mainViewModel.currentOAuthData else { return }
+        let currentState = isReblogged
+        isReblogged.toggle()
+        reblogCount += currentState ? -1 : 1
+        Task {
+            let result: Result<(data: FediverseResponseEntity, urlResponse: URLResponse), NetworkingServiceError>
+            if currentState {
+                result = await oAuthData.unreblog(id: content.id)
+            } else {
+                result = await oAuthData.reblog(id: content.id)
+            }
+            switch result {
+            case .success(let success):
+                isReblogged = success.data.reblogged
+                reblogCount = success.data.reblogsCount
+            case .failure:
+                isReblogged = currentState
+                reblogCount += currentState ? 1 : -1
+            }
+        }
+    }
+
+    private func toggleFavourite() {
+        guard let oAuthData = mainViewModel.currentOAuthData else { return }
+        let currentState = isFavourited
+        isFavourited.toggle()
+        favouriteCount += currentState ? -1 : 1
+        Task {
+            let result: Result<(data: FediverseResponseEntity, urlResponse: URLResponse), NetworkingServiceError>
+            if currentState {
+                result = await oAuthData.unfavourite(id: content.id)
+            } else {
+                result = await oAuthData.favourite(id: content.id)
+            }
+            switch result {
+            case .success(let success):
+                isFavourited = success.data.favourited
+                favouriteCount = success.data.favouritesCount
+            case .failure:
+                isFavourited = currentState
+                favouriteCount += currentState ? 1 : -1
+            }
+        }
+    }
+
     @ViewBuilder
     private func tagsView(_ tags: [FediverseResponseEntity.Tag]) -> some View {
         if !tags.isEmpty {
